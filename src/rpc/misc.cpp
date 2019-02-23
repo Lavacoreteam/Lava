@@ -1187,7 +1187,7 @@ UniValue getaddressstatistics(const UniValue& params, bool fHelp)
             + HelpExampleCli("getaddressstatistics", "total")
         );
 
-    std::map<CAmount, CAddressIndexBase> addrBalances;
+    std::multimap<CAmount, CAddressIndexBase> addrBalances;
     if(!pblocktree->ReadAddressBalances(addrBalances))
         throw JSONRPCError(RPC_DATABASE_ERROR, "Cannot read from the database");
 

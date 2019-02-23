@@ -235,8 +235,12 @@ bool CBlockTreeDB::WriteAddressIndex(const std::vector<std::pair<CAddressIndexKe
 
 bool CBlockTreeDB::EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount > >&vect) {
     CDBBatch batch(*this);
-    for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
-    batch.Erase(make_pair(DB_ADDRESSINDEX, it->first));
+    std::map<CAddressIndexBase, CAmount> addressBalances;
+    for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
+        batch.Erase(make_pair(DB_ADDRESSINDEX, it->first));
+        addressBalances[CAddressIndexBase(it->first.type, it->first.hashBytes)] -= it->second;
+    }
+    UpdateAddressBalances(addressBalances);
     return WriteBatch(batch);
 }
 
@@ -426,7 +430,7 @@ bool CBlockTreeDB::UpdateAddressBalances(std::map<CAddressIndexBase, CAmount> co
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::ReadAddressBalances(std::map<CAmount, CAddressIndexBase> & balances)
+bool CBlockTreeDB::ReadAddressBalances(std::multimap<CAmount, CAddressIndexBase> & balances)
 {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
     pcursor->Seek(make_pair(DB_ADDR_BALANCE, uint160()));
@@ -436,7 +440,7 @@ bool CBlockTreeDB::ReadAddressBalances(std::map<CAmount, CAddressIndexBase> & ba
             CAmount balance = 0;
             pcursor->GetValue(balance);
             if(balance != 0)
-                balances[balance] = key.second;
+                balances.insert({balance, key.second});
             pcursor->Next();
         } else {
             break;
