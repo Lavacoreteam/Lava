@@ -1229,12 +1229,16 @@ UniValue getaddressstatistics(const UniValue& params, bool fHelp)
     }
     if(action == "total") {
         CAmount balance = 0;
+        size_t addresses = 0;
 
-        for(auto const & bal : addrBalances)
+        for(auto const & bal : addrBalances) {
             balance += bal.first;
+            ++addresses;
+        }
 
         result.setObject();
         result.pushKV("total", balance);
+        result.pushKV("addresses", addresses);
         return result;
     }
 
