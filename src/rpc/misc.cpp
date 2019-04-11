@@ -1227,15 +1227,40 @@ UniValue getaddressstatistics(const UniValue& params, bool fHelp)
         }
         return result;
     }
-    if(action == "total") {
-        CAmount balance = 0;
-        size_t addresses = 0;
 
+    CAmount balance = 0;
+    size_t addresses = 0;
+    bool calculated = false;
+
+    if(action == "total") {
         for(auto const & bal : addrBalances) {
             balance += bal.first;
             ++addresses;
         }
+        calculated = true;
+    }
 
+    if(action == "total_nozerospend") {
+        for(auto const & bal : addrBalances) {
+            if(bal.second.addressType == AddressType::zerocoinSpend)
+                continue;
+            balance += bal.first;
+            ++addresses;
+        }
+        calculated = true;
+    }
+
+    if(action == "total_nozerocoin") {
+        for(auto const & bal : addrBalances) {
+            if(bal.second.addressType == AddressType::zerocoinSpend || bal.second.addressType == AddressType::zerocoinMint)
+                continue;
+            balance += bal.first;
+            ++addresses;
+        }
+        calculated = true;
+    }
+
+    if(calculated) {
         result.setObject();
         result.pushKV("total", balance);
         result.pushKV("addresses", addresses);
