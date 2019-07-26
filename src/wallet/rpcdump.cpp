@@ -514,9 +514,10 @@ UniValue importwallet(const UniValue& params, bool fHelp)
         }
 
         if(fHd){
+            CHDKeypath keypath = pwalletMain->mapKeyMetadata[keyid].nHdKeypath;
             // If change component in HD path is 2, this is a mint seed key. Add to mintpool. (Have to call after key addition)
-            if(pwalletMain->mapKeyMetadata[keyid].nChange==2){
-                zwalletMain->RegenerateMintPoolEntry(hdMasterKeyID, keyid, pwalletMain->mapKeyMetadata[keyid].nChild);
+            if(keypath[nChange].GetValue()==BIP44_MINT_INDEX){
+                zwalletMain->RegenerateMintPoolEntry(hdMasterKeyID, keyid, keypath[nChild].GetValue());
                 fMintUpdate = true;
             }
         }

@@ -145,7 +145,6 @@ CPubKey CWallet::GenerateNewKey(uint32_t nChange) {
     // Create new metadata
     int64_t nCreationTime = GetTime();
     CKeyMetadata metadata(nCreationTime);
-    metadata.nChange = nChange;
 
     boost::optional<bool> regTest = GetOptBoolArg("-regtest")
     , testNet = GetOptBoolArg("-testnet");
@@ -187,7 +186,6 @@ CPubKey CWallet::GenerateNewKey(uint32_t nChange) {
             externalChainChildKey.Derive(childKey, hdChain.nExternalChainCounters[nChange]);
             metadata.hdKeypath = "m/44'/" + std::to_string(nIndex) + "'/0'/" + std::to_string(nChange) + "/" + std::to_string(hdChain.nExternalChainCounters[nChange]);
             metadata.hdMasterKeyID = hdChain.masterKeyID;
-            metadata.nChild = hdChain.nExternalChainCounters[nChange];
             // increment childkey index
             hdChain.nExternalChainCounters[nChange]++;
         } while (HaveKey(childKey.key.GetPubKey().GetID()));
@@ -207,6 +205,7 @@ CPubKey CWallet::GenerateNewKey(uint32_t nChange) {
     CPubKey pubkey = secret.GetPubKey();
     assert(secret.VerifyPubKey(pubkey));
 
+    metadata.ParseComponents();
     mapKeyMetadata[pubkey.GetID()] = metadata;
     if (!nTimeFirstKey || nCreationTime < nTimeFirstKey)
         nTimeFirstKey = nCreationTime;

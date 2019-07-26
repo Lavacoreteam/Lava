@@ -714,6 +714,7 @@ bool ReadKeyValue(CWallet *pwallet, CDataStream &ssKey, CDataStream &ssValue,
             ssValue >> keyMeta;
             wss.nKeyMeta++;
 
+            keyMeta.ParseComponents();
             pwallet->LoadKeyMetadata(vchPubKey, keyMeta);
 
             // find earliest key creation time, as wallet birthday

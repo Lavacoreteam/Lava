@@ -26,8 +26,10 @@
 #include "libzerocoin/Zerocoin.h"
 
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
+
 
 static const bool DEFAULT_FLUSHWALLET = true;
 
@@ -55,6 +57,157 @@ enum DBErrors
     DB_TOO_NEW,
     DB_LOAD_FAIL,
     DB_NEED_REWRITE
+};
+
+/** IDs for components in the HD Keypath */
+enum class HDKeypathID {
+    nMaster,
+    nPurpose,
+    nCoinType,
+    nAccount,
+    nChange,
+    nExternalChainChild,
+    nChild
+};
+
+//BIP32 Component
+class CComponent {
+    public:
+        CComponent(std::string nComponent, int64_t nDepth) : nDepth{nDepth}, value{SetValue(nComponent)}, isHardened{SetHardened(nComponent)} {
+            this->nComponent = nComponent;
+        }
+
+        void SetID(HDKeypathID nID){
+            this->nID = nID;
+        }
+
+        int64_t GetValue(){
+            return value;
+        }
+
+        bool IsHardened(){
+            return isHardened;
+        }
+
+        HDKeypathID GetID(){
+            return nID;
+        }
+
+    private:
+
+        std::string nComponent;
+        int64_t value = -1;
+        bool isHardened = false;
+        HDKeypathID nID;
+        int64_t nDepth = -1;
+
+        bool SetHardened(std::string nComponent){
+            if(nComponent.size()==1) return false;
+            //std::string hardened = nComponent[nComponent.size()-1];
+            //const char newHardened = '\'';
+            return (nComponent.at(nComponent.size()-1) == '\'');
+        }
+
+        int64_t SetValue(std::string nComponent){
+            std::string nComponentValue = nComponent;
+            if(isHardened)
+                boost::erase_all(nComponentValue, "'");
+            if(!(nComponent.find_first_not_of("0123456789") == std::string::npos))
+                return boost::lexical_cast<int64_t>(nComponentValue);
+            return -1;
+        }
+};
+
+//HD Keypath. Layout according to a particular BIP (eg. BIP44)
+class CHDKeypath {
+    public:
+        void AddComponent(CComponent cComponent){
+            nComponents.push_back(cComponent);
+        }
+
+        CComponent& operator[](HDKeypathID nID){
+            return nComponents[nID];
+        }
+
+    private:
+        vector<CComponent> nComponents;
+        int nSize;
+};
+
+//Legacy Keypath - m/0'/0'/<n>
+class CLegacyHDKeypath : public CHDKeypath {
+    static const int LEGACY_DEPTH = 4;
+
+    public:
+        CLegacyHDKeypath(std::vector<std::string> vComponents) {
+            SetComponents(vComponents);
+        }
+
+    private:
+        void SetComponents(std::vector<std::string> vComponents){
+            if(vComponents.size()!=LEGACY_DEPTH)
+                return;
+
+            for(size_t nDepth=0; nDepth<LEGACY_DEPTH; nDepth++){
+                CComponent cComponent(vComponents[nDepth], nDepth);
+                switch(nDepth) {
+                    case 0:
+                        cComponent.SetID(HDKeypathID::nMaster);
+                        break;
+                    case 1:
+                        cComponent.SetID(HDKeypathID::nAccount);
+                        break;
+                    case 2:
+                        cComponent.SetID(HDKeypathID::nExternalChainChild);
+                        break;
+                    case 3:
+                        cComponent.SetID(HDKeypathID::nChild);
+                        break;
+                }
+                AddComponent(cComponent);
+            }    
+        }
+};
+
+//BIP44 Keypath - m/44'/<1/136>'/0'/<c>/<n>
+class CBIP44HDKeypath : public CHDKeypath {
+    static const int BIP44_DEPTH = 6;
+
+    public:
+        CBIP44HDKeypath(std::vector<std::string> vComponents) {
+            SetComponents(vComponents);
+        }
+
+    private:
+        void SetComponents(std::vector<std::string> vComponents){
+            if(vComponents.size()!=BIP44_DEPTH)
+                return;
+
+            for(size_t nDepth=0; nDepth<BIP44_DEPTH; nDepth++){
+                CComponent cComponent(vComponents[nDepth], nDepth);
+                switch(nDepth) {
+                    case 0:
+                        cComponent.SetID(HDKeypathID::nMaster);
+                        break;
+                    case 1:
+                        cComponent.SetID(HDKeypathID::nPurpose);
+                        break;
+                    case 2:
+                        cComponent.SetID(HDKeypathID::nCoinType);
+                        break;
+                    case 3:
+                        cComponent.SetID(HDKeypathID::nAccount);
+                        break;
+                    case 4:
+                        cComponent.SetID(HDKeypathID::nChange);
+                        break;
+                    case 5:
+                        cComponent.SetID(HDKeypathID::nChild);
+                        break;
+                }
+                AddComponent(cComponent);
+            }    
+        }
 };
 
 /* simple HD chain data model */
@@ -105,9 +258,9 @@ public:
     static const int CURRENT_VERSION=VERSION_WITH_HDDATA;
     int nVersion;
     int64_t nCreateTime; // 0 means unknown
-    std::string hdKeypath; //optional HD/bip32 keypath
-    int64_t nChange; // HD/bip32 keypath change counter
-    int64_t nChild; // HD/bip32 keypath child counter
+    CHDKeypath nHdKeypath; // optional HD/bip32 keypath (object)
+    std::string hdKeypath; //optional HD/bip32 keypath (string)
+
     CKeyID hdMasterKeyID; //id of the HD masterkey used to derive this key
 
     CKeyMetadata()
@@ -125,8 +278,12 @@ public:
         if(hdKeypath=="m")
             return false;
         boost::split(nComponents, hdKeypath, boost::is_any_of("/"), boost::token_compress_on);
-        nChange = boost::lexical_cast<int64_t>(nComponents[4]);
-        nChild = boost::lexical_cast<int64_t>(nComponents[5]);
+
+        if(nComponents[1].compare("44'") == 0){
+            nHdKeypath = CBIP44HDKeypath(nComponents);
+        }else{
+            nHdKeypath = CLegacyHDKeypath(nComponents);
+        }
         return true;
     }
 
@@ -149,8 +306,6 @@ public:
         nVersion = CKeyMetadata::CURRENT_VERSION;
         nCreateTime = 0;
         hdKeypath.clear();
-        nChild = 0;
-        nChange = 0;
         hdMasterKeyID.SetNull();
     }
 };
