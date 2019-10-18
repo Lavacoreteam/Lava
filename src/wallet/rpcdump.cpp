@@ -16,6 +16,7 @@
 #include "merkleblock.h"
 #include "core_io.h"
 #include "authhelper.h"
+#include "znode-sync.h"
 
 #include <fstream>
 #include <stdint.h>
@@ -434,6 +435,10 @@ UniValue importwallet(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     EnsureWalletIsUnlocked();
+
+    if(!znodeSync.IsBlockchainSynced()){
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Importing a wallet requires chain sync");
+    }
 
     ifstream file;
     file.open(params[0].get_str().c_str(), std::ios::in | std::ios::ate);
