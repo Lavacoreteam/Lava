@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     autoconf automake bsdmainutils ccache cmake curl g++ g++-mingw-w64-x86-64 gcc gcc-mingw-w64-x86-64 git \
     libboost-all-dev libbz2-dev libcap-dev libdb4.8-dev libdb4.8++-dev libevent-dev libminiupnpc-dev libprotobuf-dev \
     libqrencode-dev libssl-dev libtool make pkg-config protobuf-compiler python-pip qtbase5-dev \
-    qttools5-dev-tools python3-zmq zlib1g-dev build-essential
+    qttools5-dev-tools python3-zmq zlib1g-dev build-essential lcov default-jre
 
 # Install minizip from source (unavailable from apt)
 RUN curl -L https://www.zlib.net/zlib-1.2.11.tar.gz | tar -xz -C /tmp && \
