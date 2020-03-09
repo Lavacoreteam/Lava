@@ -77,7 +77,7 @@ bool EnsureWalletIsAvailable(bool avoidException)
 
 void EnsureSigmaWalletIsAvailable()
 {
-    if (!zwalletMain) {
+    if (!pwalletMain->zwallet) {
         throw JSONRPCError(RPC_WALLET_ERROR, "sigma mint/spend is not allowed for legacy wallet");
     }
 }
@@ -2677,7 +2677,7 @@ UniValue regeneratemintpool(const UniValue &params, bool fHelp) {
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED,
                            "Error: Please enter the wallet passphrase with walletpassphrase first.");
 
-    if (!pwalletMain->IsHDSeedAvailable() || !zwalletMain) {
+    if (!pwalletMain->IsHDSeedAvailable() || !pwalletMain->zwallet) {
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED,
                            "Error: Can only regenerate mintpool on a HD-enabled wallet.");
     }
@@ -2699,10 +2699,10 @@ UniValue regeneratemintpool(const UniValue &params, bool fHelp) {
             mintPoolPair.first.GetHex(), get<0>(mintPoolPair.second).GetHex(), get<1>(mintPoolPair.second).GetHex(), get<2>(mintPoolPair.second));
 
         oldHashPubcoin = mintPoolPair.first;
-        bool hasSerial = zwalletMain->GetSerialForPubcoin(serialPubcoinPairs, oldHashPubcoin, oldHashSerial);
+        bool hasSerial = pwalletMain->zwallet->GetSerialForPubcoin(serialPubcoinPairs, oldHashPubcoin, oldHashSerial);
 
         MintPoolEntry entry = mintPoolPair.second;
-        nIndexes = zwalletMain->RegenerateMintPoolEntry(get<0>(entry),get<1>(entry),get<2>(entry));
+        nIndexes = pwalletMain->zwallet->RegenerateMintPoolEntry(get<0>(entry),get<1>(entry),get<2>(entry));
 
         if(nIndexes.first != oldHashPubcoin){
             walletdb.EraseMintPoolPair(oldHashPubcoin);
@@ -3449,7 +3449,7 @@ UniValue resetsigmamint(const UniValue& params, bool fHelp) {
 
     std::vector <CMintMeta> listMints;
     CWalletDB walletdb(pwalletMain->strWalletFile);
-    listMints = zwalletMain->GetTracker().ListMints(false, false);
+    listMints = pwalletMain->zwallet->GetTracker().ListMints(false, false);
 
     BOOST_FOREACH(CMintMeta &mint, listMints) {
         CHDMint dMint;
@@ -3458,7 +3458,7 @@ UniValue resetsigmamint(const UniValue& params, bool fHelp) {
         }
         dMint.SetUsed(false);
         dMint.SetHeight(-1);
-        zwalletMain->GetTracker().Add(dMint, true);
+        pwalletMain->zwallet->GetTracker().Add(dMint, true);
     }
 
     return NullUniValue;
@@ -3522,7 +3522,7 @@ UniValue listsigmamints(const UniValue& params, bool fHelp) {
 
     list <CSigmaEntry> listPubcoin;
     CWalletDB walletdb(pwalletMain->strWalletFile);
-    listPubcoin = zwalletMain->GetTracker().MintsAsSigmaEntries(false, false);
+    listPubcoin = pwalletMain->zwallet->GetTracker().MintsAsSigmaEntries(false, false);
     UniValue results(UniValue::VARR);
 
     BOOST_FOREACH(const CSigmaEntry &zerocoinItem, listPubcoin) {
@@ -3608,7 +3608,7 @@ UniValue listsigmapubcoins(const UniValue& params, bool fHelp) {
 
     list<CSigmaEntry> listPubcoin;
     CWalletDB walletdb(pwalletMain->strWalletFile);
-    listPubcoin = zwalletMain->GetTracker().MintsAsSigmaEntries(false, false);
+    listPubcoin = pwalletMain->zwallet->GetTracker().MintsAsSigmaEntries(false, false);
     UniValue results(UniValue::VARR);
     listPubcoin.sort(CompSigmaHeight);
 
@@ -3719,7 +3719,7 @@ UniValue setsigmamintstatus(const UniValue& params, bool fHelp) {
 
     std::vector <CMintMeta> listMints;
     CWalletDB walletdb(pwalletMain->strWalletFile);
-    listMints = zwalletMain->GetTracker().ListMints(false, false);
+    listMints = pwalletMain->zwallet->GetTracker().ListMints(false, false);
 
     UniValue results(UniValue::VARR);
 
@@ -3746,10 +3746,10 @@ UniValue setsigmamintstatus(const UniValue& params, bool fHelp) {
 
                 if(!mint.isDeterministic){
                     zerocoinItem.IsUsed = fStatus;
-                    zwalletMain->GetTracker().Add(zerocoinItem, true);
+                    pwalletMain->zwallet->GetTracker().Add(zerocoinItem, true);
                 }else{
                     dMint.SetUsed(fStatus);
-                    zwalletMain->GetTracker().Add(dMint, true);
+                    pwalletMain->zwallet->GetTracker().Add(dMint, true);
                 }
 
                 if (!fStatus) {

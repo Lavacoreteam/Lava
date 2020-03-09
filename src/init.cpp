@@ -239,8 +239,8 @@ void Shutdown() {
 #ifdef ENABLE_WALLET
     if (pwalletMain)
         pwalletMain->Flush(false);
-    delete zwalletMain;
-    zwalletMain = NULL;
+    delete pwalletMain->zwallet;
+    pwalletMain->zwallet = NULL;
 #endif
     GenerateBitcoins(false, 0, Params());
     StopNode();
@@ -289,8 +289,8 @@ void Shutdown() {
 #ifdef ENABLE_WALLET
     if (pwalletMain)
         pwalletMain->Flush(true);
-    delete zwalletMain;
-    zwalletMain = NULL;
+    delete pwalletMain->zwallet;
+    pwalletMain->zwallet = NULL;
 #endif
 
 #if ENABLE_ZMQ
@@ -794,11 +794,11 @@ void CleanupBlockRevFiles() {
 void ThreadImport(std::vector <boost::filesystem::path> vImportFiles) {
 
 #ifdef ENABLE_WALLET
-    if (!GetBoolArg("-disablewallet", false) && zwalletMain) {
+    if (!GetBoolArg("-disablewallet", false) && pwalletMain->zwallet) {
         //Load zerocoin mint hashes to memory
         LogPrintf("Loading mints to wallet..\n");
-        zwalletMain->GetTracker().Init();
-        zwalletMain->LoadMintPoolFromDB();
+        pwalletMain->zwallet->GetTracker().Init();
+        pwalletMain->zwallet->LoadMintPoolFromDB();
     }
 #endif
 
@@ -866,12 +866,12 @@ void ThreadImport(std::vector <boost::filesystem::path> vImportFiles) {
     }
 
 #ifdef ENABLE_WALLET
-    if (!GetBoolArg("-disablewallet", false) && zwalletMain) {
-        zwalletMain->SyncWithChain();
+    if (!GetBoolArg("-disablewallet", false) && pwalletMain->zwallet) {
+        pwalletMain->zwallet->SyncWithChain();
     }
     // Need this to restore Sigma spend state
-    if (GetBoolArg("-rescan", false) && zwalletMain) {
-        zwalletMain->GetTracker().ListMints();
+    if (GetBoolArg("-rescan", false) && pwalletMain->zwallet) {
+        pwalletMain->zwallet->GetTracker().ListMints();
     }
 #endif
 }
@@ -1834,7 +1834,7 @@ bool AppInit2(boost::thread_group &threadGroup, CScheduler &scheduler) {
     LogPrintf("Step 8: load wallet ************************************\n");
     if (fDisableWallet) {
         pwalletMain = NULL;
-        zwalletMain = NULL;
+        pwalletMain->zwallet = NULL;
         LogPrintf("Wallet disabled!\n");
     } else {
         CWallet::InitLoadWallet();

@@ -140,7 +140,7 @@ void WalletModel::pollBalanceChanged()
 
         // check sigma
         // support only hd
-        if (zwalletMain) {
+        if (pwalletMain->zwallet) {
             checkSigmaAmount(false);
         }
     }
@@ -156,7 +156,7 @@ void WalletModel::updateSigmaCoins(const QString &pubCoin, const QString &isUsed
     } else if (status == ChangeType::CT_NEW) {
         // new mint
         LOCK2(cs_main, wallet->cs_wallet);
-        auto coins = zwalletMain->GetTracker().ListMints(true, false, false);
+        auto coins = pwalletMain->zwallet->GetTracker().ListMints(true, false, false);
 
         int block = cachedNumBlocks;
         for (const auto& coin : coins) {
@@ -211,7 +211,7 @@ void WalletModel::checkSigmaAmount(bool forced)
         || currentBlock < lastBlockCheckSigma // reorg
         || forced) {
 
-        auto coins = zwalletMain->GetTracker().ListMints(true, false, false);
+        auto coins = pwalletMain->zwallet->GetTracker().ListMints(true, false, false);
 
         std::vector<CMintMeta> spendable, pending;
 
@@ -568,7 +568,7 @@ static void NotifyZerocoinChanged(WalletModel *walletmodel, CWallet *wallet, con
                               Q_ARG(int, status));
 
     // disable sigma
-    if (zwalletMain) {
+    if (pwalletMain->zwallet) {
         QMetaObject::invokeMethod(walletmodel, "updateSigmaCoins", Qt::QueuedConnection,
                               Q_ARG(QString, QString::fromStdString(pubCoin)),
                               Q_ARG(QString, QString::fromStdString(isUsed)),

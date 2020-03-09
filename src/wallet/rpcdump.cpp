@@ -556,7 +556,7 @@ UniValue importwallet(const UniValue& params, bool fHelp)
             if(!masterKeyID.IsNull() && fHd){
                 // If change component in HD path is 2, this is a mint seed key. Add to mintpool. (Have to call after key addition)
                 if(pwalletMain->mapKeyMetadata[keyid].nChange.first==2){
-                    zwalletMain->RegenerateMintPoolEntry(hdMasterKeyID, keyid, pwalletMain->mapKeyMetadata[keyid].nChild.first);
+                    pwalletMain->zwallet->RegenerateMintPoolEntry(hdMasterKeyID, keyid, pwalletMain->mapKeyMetadata[keyid].nChild.first);
                     fMintUpdate = true;
                 }
             }
@@ -580,8 +580,8 @@ UniValue importwallet(const UniValue& params, bool fHelp)
     pwalletMain->MarkDirty();
 
     if(fMintUpdate){
-        zwalletMain->SyncWithChain();
-        zwalletMain->GetTracker().ListMints(false, false);
+        pwalletMain->zwallet->SyncWithChain();
+        pwalletMain->zwallet->GetTracker().ListMints(false, false);
     }
 
     if (!fGood)

@@ -41,7 +41,6 @@
 #include <boost/shared_ptr.hpp>
 
 extern CWallet* pwalletMain;
-extern CHDMintWallet* zwalletMain;
 
 /**
  * Settings
@@ -702,6 +701,8 @@ public:
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
 
+    CHDMintWallet* zwallet;
+
     CWallet()
     {
         SetNull();
@@ -737,6 +738,7 @@ public:
         fAnonymizableTallyCachedNonDenom = false;
         vecAnonymizableTallyCached.clear();
         vecAnonymizableTallyCachedNonDenom.clear();
+        zwallet = NULL;
     }
 
     std::map<uint256, CWalletTx> mapWallet;
