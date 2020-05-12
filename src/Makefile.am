@@ -411,7 +411,6 @@ libbitcoin_consensus_a_SOURCES = \
   utilstrencodings.cpp \
   utilstrencodings.h \
   version.h \
-  auxpow.h \
   crypto/Lyra2Z/Lyra2.h \
   crypto/Lyra2Z/Lyra2.c \
   crypto/Lyra2Z/Lyra2Z.h \
@@ -444,7 +443,6 @@ libbitcoin_common_a_SOURCES = \
   base58.cpp \
   chainparams.cpp \
   coins.cpp \
-  auxpow.cpp \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \

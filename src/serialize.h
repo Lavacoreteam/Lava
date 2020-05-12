@@ -1108,27 +1108,12 @@ void Unserialize(Stream& is, SetType & m, int nType, int nVersion)
  */
 template<typename T>
 unsigned int GetSerializeSize(const std::shared_ptr <T> &item, int nType, int nVersion) {
-    if (nVersion & BLOCK_VERSION_AUXPOW) {
-        return ::GetSerializeSize(*item, nType, nVersion);
-    }
     return 0;
 }
 
 template<typename Stream, typename T>
-void Serialize(Stream &os, const std::shared_ptr <T> &item, int nType, int nVersion) {
-    if (nVersion & BLOCK_VERSION_AUXPOW) {
-        ::Serialize(os, item, nType, nVersion);
-    }
-}
-
-template<typename Stream, typename T>
 void Unserialize(Stream &os, std::shared_ptr <T> &item, int nType, int nVersion) {
-    if (nVersion & BLOCK_VERSION_AUXPOW) {
         item.reset();
-        ::Unserialize(os, item, nType, nVersion);
-    } else {
-        item.reset();
-    }
 }
 
 

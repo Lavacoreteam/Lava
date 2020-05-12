@@ -10,8 +10,6 @@
 enum {
     // primary version
     BLOCK_VERSION_DEFAULT = (1 << 0),
-    // modifiers
-    BLOCK_VERSION_AUXPOW = (1 << 8),
     // bits allocated for chain ID
     BLOCK_VERSION_CHAIN_START = (1 << 16),
     BLOCK_VERSION_CHAIN_END = (1 << 30),
