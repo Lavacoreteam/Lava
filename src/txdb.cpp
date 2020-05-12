@@ -347,6 +347,8 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
 
                 pindexNew->sigmaMintedPubCoins   = diskindex.sigmaMintedPubCoins;
                 pindexNew->sigmaSpentSerials     = diskindex.sigmaSpentSerials;
+                pindexNew->nStakeModifier = diskindex.nStakeModifier;
+                pindexNew->vchBlockSig    = diskindex.vchBlockSig; // qtum
 
                 if (!CheckProofOfWork(pindexNew->GetBlockPoWHash(), pindexNew->nBits, consensusParams))
                     if (!CheckProofOfWork(pindexNew->GetBlockPoWHash(true), pindexNew->nBits, consensusParams))

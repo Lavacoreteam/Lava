@@ -155,6 +155,7 @@ enum BlockStatus: uint32_t {
     BLOCK_FAILED_VALID       =   32, //!< stage after last reached validness failed
     BLOCK_FAILED_CHILD       =   64, //!< descends from failed block
     BLOCK_FAILED_MASK        =   96,
+    BLOCK_PROOF_OF_STAKE     =   256, //! is proof-of-stake block
 
     BLOCK_OPT_WITNESS       =   128, //!< block data in blk*.data was received with a witness-enforcing client
 };
@@ -202,6 +203,9 @@ public:
 
     //! Verification status of this block. See enum BlockStatus
     unsigned int nStatus;
+	//! hash modifier of proof-of-stake
+    uint256 nStakeModifier;
+    std::vector<unsigned char> vchBlockSig;
 
     //! block header
     int nVersion;
@@ -256,12 +260,15 @@ public:
         nTime          = 0;
         nBits          = 0;
         nNonce         = 0;
+        vchBlockSig.clear();
 
         mintedPubCoins.clear();
         sigmaMintedPubCoins.clear();
         accumulatorChanges.clear();
         spentSerials.clear();
         sigmaSpentSerials.clear();
+        //PoS
+        nStakeModifier = uint256();
     }
 
     CBlockIndex()
@@ -278,6 +285,7 @@ public:
         nTime          = block.nTime;
         nBits          = block.nBits;
         nNonce         = block.nNonce;
+
     }
 
     CDiskBlockPos GetBlockPos() const {
@@ -340,6 +348,26 @@ public:
 
         std::sort(pbegin, pend);
         return pbegin[(pend - pbegin)/2];
+    }
+
+	int64_t GetPastTimeLimit() const
+    {
+        return GetMedianTimePast();
+    }
+
+    bool IsProofOfWork() const
+    {
+        return !IsProofOfStake();
+    }
+
+    bool IsProofOfStake() const
+    {
+        return nNonce == 0 || nStatus & BLOCK_PROOF_OF_STAKE;
+    }
+
+    void SetProofOfStake()
+    {
+        nStatus |= BLOCK_PROOF_OF_STAKE;
     }
 
     std::string ToString() const
@@ -427,6 +455,7 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+        READWRITE(vchBlockSig); // qtum
 
         if (!(nType & SER_GETHASH) && nVersion >= ZC_ADVANCED_INDEX_VERSION) {
             READWRITE(mintedPubCoins);
@@ -438,6 +467,8 @@ public:
             READWRITE(sigmaMintedPubCoins);
             READWRITE(sigmaSpentSerials);
         }
+	    // PoS
+        READWRITE(nStakeModifier);
 
         nDiskBlockVersion = nVersion;
     }
@@ -522,5 +553,6 @@ public:
     /** Find the last common block between this chain and a block index entry. */
     const CBlockIndex *FindFork(const CBlockIndex *pindex) const;
 };
+const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 
 #endif // BITCOIN_CHAIN_H

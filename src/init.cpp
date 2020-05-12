@@ -1978,6 +1978,11 @@ bool AppInit2(boost::thread_group &threadGroup, CScheduler &scheduler) {
 
         // Run a thread to flush wallet periodically
         threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
+        // Mine proof-of-stake blocks in the background
+    if (!GetBoolArg("-staking", true))
+        LogPrintf("Staking disabled\n");
+    else if (pwalletMain)
+        threadGroup.create_thread(boost::bind(&ThreadStakeMiner, pwalletMain, chainparams));
     }
 #endif
 

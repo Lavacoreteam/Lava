@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "amount.h"
+#include "base58.h"
 #include "chain.h"
 #include "chainparams.h"
 #include "checkpoints.h"
@@ -62,6 +63,77 @@ double GetDifficulty(const CBlockIndex* blockindex)
     return dDiff;
 }
 
+double GetPoSKernelPS()
+{
+    int nPoSInterval = 100;
+    double dStakeKernelsTriedAvg = 0;
+    int nStakesHandled = 0, nStakesTime = 0;
+
+    CBlockIndex* pindex = chainActive.Tip();;
+    CBlockIndex* pindexPrevStake = NULL;
+
+    while (pindex && nStakesHandled < nPoSInterval)
+    {
+        if (pindex->IsProofOfStake())
+        {
+            if (pindexPrevStake)
+            {
+                dStakeKernelsTriedAvg += GetDifficulty(pindexPrevStake) * 4294967296.0;
+                nStakesTime += pindexPrevStake->nTime - pindex->nTime;
+                nStakesHandled++;
+            }
+            pindexPrevStake = pindex;
+        }
+
+        pindex = pindex->pprev;
+    }
+
+    double result = 0;
+
+    if (nStakesTime)
+        result = dStakeKernelsTriedAvg / nStakesTime;
+
+    result *= 16;
+
+    return result;
+}
+
+//Start Extra Blockinfo code
+CTransaction GetBlockRewardTransaction(const CBlock& block){
+    int RewardTXIndex = block.IsProofOfStake() ? 1:0;
+    return block.vtx[RewardTXIndex];
+}
+
+CTxOut GetStakeTXOut(const CTxIn& txin){
+    CTransaction prevTx;
+    uint256 hashBlock;
+    if (GetTransaction(txin.prevout.hash, prevTx, Params().GetConsensus(), hashBlock, true)) {
+        return prevTx.vout.at(txin.prevout.n);
+    }
+    return CTxOut();
+}
+
+std::string GetBlockRewardWinner(const CBlock& block){
+    CTransaction RewardTX = GetBlockRewardTransaction(block);
+    CTxDestination dstAddr;
+    const CTxOut& txout = block.IsProofOfStake() ? GetStakeTXOut(RewardTX.vin[0]) : RewardTX.vout[0];
+    if(txout != CTxOut() && ExtractDestination(txout.scriptPubKey, dstAddr))
+        return CBitcoinAddress(dstAddr).ToString();
+    return "";
+}
+
+float GetBlockInput(const CBlock& block){
+    float nValueIn = 0.0;
+    CTransaction RewardTX = GetBlockRewardTransaction(block);
+    //Cycle through inputs as we may have many inputs staking
+        for (unsigned int i = 0; i < RewardTX.vin.size(); i++) {
+            CTxOut const & txOut = GetStakeTXOut(RewardTX.vin[i]);
+            nValueIn+= ValueFromAmount(txOut.nValue).get_real();
+        }
+    return nValueIn;
+}
+//End extra block info code
+
 UniValue blockheaderToJSON(const CBlockIndex* blockindex)
 {
     UniValue result(UniValue::VOBJ);
@@ -95,6 +167,7 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("hash", blockindex->GetBlockHash().GetHex()));
     int confirmations = -1;
+    float blockInput = 0.0;
     // Only report confirmations if the block is on the main chain
     if (chainActive.Contains(blockindex))
         confirmations = chainActive.Height() - blockindex->nHeight + 1;
@@ -131,6 +204,16 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     CBlockIndex *pnext = chainActive.Next(blockindex);
     if (pnext)
         result.push_back(Pair("nextblockhash", pnext->GetBlockHash().GetHex()));
+        result.push_back(Pair("type",block.IsProofOfStake() ? "PoS":"PoW"));
+    if(block.IsProofOfStake())
+        blockInput = GetBlockInput(block);
+    if(blockInput > 0)
+            result.push_back(Pair("inputamount",blockInput));
+    result.push_back(Pair("rewardadress",GetBlockRewardWinner(block)));
+    if (block.IsProofOfStake()){
+        result.push_back(Pair("modifier", blockindex->nStakeModifier.GetHex()));
+        result.push_back(Pair("signature", HexStr(block.vchBlockSig.begin(), block.vchBlockSig.end())));
+    }
     return result;
 }
 

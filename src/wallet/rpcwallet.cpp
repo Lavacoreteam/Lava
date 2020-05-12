@@ -110,6 +110,8 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     entry.push_back(Pair("confirmations", confirms));
     if (wtx.IsCoinBase())
         entry.push_back(Pair("generated", true));
+    else if (wtx.IsCoinStake())
+        entry.push_back(Pair("staked",true));
     if (confirms > 0)
     {
         entry.push_back(Pair("blockhash", wtx.hashBlock.GetHex()));
@@ -642,7 +644,7 @@ UniValue getreceivedbyaddress(const UniValue& params, bool fHelp)
     for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
     {
         const CWalletTx& wtx = (*it).second;
-        if (wtx.IsCoinBase() || !CheckFinalTx(wtx))
+        if (wtx.IsCoinBase() || wtx.IsCoinStake() || !CheckFinalTx(wtx))
             continue;
 
         BOOST_FOREACH(const CTxOut& txout, wtx.vout)
@@ -1409,6 +1411,9 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
             else if (wtx.IsZerocoinMint() || wtx.IsSigmaMint()) {
                 entry.push_back(Pair("category", "mint"));
             }
+            else if (wtx.IsCoinStake()) {
+                entry.push_back(Pair("category", "stake"));
+            }
             else {
                 entry.push_back(Pair("category", "send"));
             }
@@ -1445,6 +1450,8 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                     CScript payee;
                     if (wtx.GetDepthInMainChain() < 1)
                         entry.push_back(Pair("category", "orphan"));
+                    else if (wtx.GetBlocksToMaturity() > 0 && wtx.IsCoinStake())
+                        entry.push_back(Pair("category", "immature-stake"));
                     else if (wtx.GetBlocksToMaturity() > 0)
                         entry.push_back(Pair("category", "immature"));
                     else

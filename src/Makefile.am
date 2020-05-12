@@ -186,6 +186,7 @@ BITCOIN_CORE_H = \
   primitives/zerocoin.h \
   fixed.h \
   pow.h \
+  pos.h \
   hdmint/hdmint.h \
   protocol.h \
   random.h \
@@ -274,6 +275,7 @@ libbitcoin_server_a_SOURCES = \
   policy/policy.cpp \
   primitives/zerocoin.cpp \
   pow.cpp \
+  pos.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
   rpc/mining.cpp \
