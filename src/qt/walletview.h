@@ -10,7 +10,6 @@
 #endif
 
 #include "amount.h"
-#include "znodelist.h"
 #include "sigmadialog.h"
 
 #ifdef ENABLE_ELYSIUM
@@ -113,7 +112,6 @@ private:
     Zc2SigmaPage *zc2SigmaPage;
     TransactionView *zcoinTransactionList;
     QWidget *zcoinTransactionsView;
-    ZnodeList *znodeListPage;
 
     QProgressDialog *progressDialog;
     const PlatformStyle *platformStyle;
@@ -137,8 +135,6 @@ public Q_SLOTS:
     void gotoBitcoinHistoryTab();
     /** Switch to bitcoin tx history tab and focus on specific transaction */
     void focusBitcoinHistoryTab(const QModelIndex &idx);
-    /** Switch to znode page */
-    void gotoZnodePage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */

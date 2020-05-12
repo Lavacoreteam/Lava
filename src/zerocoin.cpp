@@ -8,8 +8,6 @@
 #include "definition.h"
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
-#include "znode-payments.h"
-#include "znode-sync.h"
 #include "sigma/remint.h"
 
 #include <atomic>
@@ -623,7 +621,6 @@ bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state
                 FOUNDER_5_SCRIPT = GetScriptForDestination(CBitcoinAddress("TCsTzQZKVn4fao8jDmB9zQBk9YQNEZ3XfS").Get());
             }
 
-            CAmount znodePayment = GetZnodePayment(params, fMTP);
             BOOST_FOREACH(const CTxOut &output, tx.vout) {
                 if (output.scriptPubKey == FOUNDER_1_SCRIPT && output.nValue == (int64_t)(1 * COIN)/reductionFactor) {
                     found_1 = true;
@@ -645,26 +642,6 @@ bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state
                     found_5 = true;
                     continue;
                 }
-                if (znodePayment == output.nValue) {
-                    total_payment_tx = total_payment_tx + 1;
-                }
-            }
-
-            bool validZnodePayment;
-
-            if (nHeight > params.nZnodePaymentsBugFixedAtBlock) {
-                if (!znodeSync.IsSynced()) {
-                    validZnodePayment = true;
-                } else {
-                    validZnodePayment = mnpayments.IsTransactionValid(tx, nHeight, fMTP);
-                }
-            } else {
-                validZnodePayment = total_payment_tx <= 1;
-            }
-
-            if (!validZnodePayment) {
-                return state.DoS(100, false, REJECT_INVALID_ZNODE_PAYMENT,
-                                 "CTransaction::CheckTransaction() : invalid znode payment");
             }
         }
 

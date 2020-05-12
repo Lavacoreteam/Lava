@@ -81,7 +81,6 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
 #ifdef ENABLE_ELYSIUM
     toolboxPage = new QWidget(this);
 #endif
-    znodeListPage = new ZnodeList(platformStyle);
 
     setupTransactionPage();
     setupSendCoinPage();
@@ -103,7 +102,6 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
 #ifdef ENABLE_ELYSIUM
     addWidget(toolboxPage);
 #endif
-    addWidget(znodeListPage);
 
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), this, SLOT(focusBitcoinHistoryTab(QModelIndex)));
@@ -267,7 +265,6 @@ void WalletView::setClientModel(ClientModel *clientModel)
 
     overviewPage->setClientModel(clientModel);
     sendZcoinView->setClientModel(clientModel);
-    znodeListPage->setClientModel(clientModel);
 #ifdef ENABLE_ELYSIUM
     elyAssetsPage->setClientModel(clientModel);
 #endif
@@ -302,7 +299,6 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     zc2SigmaPage->createModel();
     usedReceivingAddressesPage->setModel(walletModel->getAddressTableModel());
     usedSendingAddressesPage->setModel(walletModel->getAddressTableModel());
-    znodeListPage->setWalletModel(walletModel);
     sendZcoinView->setModel(walletModel);
     zc2SigmaPage->setWalletModel(walletModel);
 #ifdef ENABLE_ELYSIUM
@@ -414,11 +410,6 @@ void WalletView::focusBitcoinHistoryTab(const QModelIndex &idx)
 {
     gotoBitcoinHistoryTab();
     zcoinTransactionList->focusTransaction(idx);
-}
-
-void WalletView::gotoZnodePage()
-{
-    setCurrentWidget(znodeListPage);
 }
 
 void WalletView::gotoReceiveCoinsPage()

@@ -98,8 +98,6 @@ namespace boost {
 
 using namespace std;
 
-// znode fZnode
-bool fZNode = false;
 bool fLiteMode = false;
 int nWalletBackups = 10;
 
@@ -573,14 +571,6 @@ boost::filesystem::path GetConfigFile()
     if (!pathConfigFile.is_complete())
         pathConfigFile = GetDataDir(false) / pathConfigFile;
 
-    return pathConfigFile;
-}
-
-boost::filesystem::path GetZnodeConfigFile()
-{
-    boost::filesystem::path pathConfigFile(GetArg("-znconf", "znode.conf"));
-    if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir() / pathConfigFile;
-    LogPrintf("pathConfigFile=%s\n", pathConfigFile);
     return pathConfigFile;
 }
 

@@ -22,11 +22,9 @@
 #include "wallet.h"
 #include "walletdb.h"
 #include "hdmint/tracker.h"
-#include "znode-sync.h"
 #include "zerocoin.h"
 #include "walletexcept.h"
 
-#include <znode-payments.h>
 
 #include <stdint.h>
 
@@ -1445,16 +1443,7 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 {
                     int txHeight = chainActive.Height() - wtx.GetDepthInMainChain();
                     CScript payee;
-
-                    mnpayments.GetBlockPayee(txHeight, payee);
-                    //compare address of payee to addr.
-                    CTxDestination payeeDest;
-                    ExtractDestination(payee, payeeDest);
-                    CBitcoinAddress payeeAddr(payeeDest);
-                    if(addr.ToString() == payeeAddr.ToString()){
-                        entry.push_back(Pair("category", "znode"));
-                    }
-                    else if (wtx.GetDepthInMainChain() < 1)
+                    if (wtx.GetDepthInMainChain() < 1)
                         entry.push_back(Pair("category", "orphan"));
                     else if (wtx.GetBlocksToMaturity() > 0)
                         entry.push_back(Pair("category", "immature"));

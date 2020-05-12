@@ -119,7 +119,6 @@ private:
     QAction *showHelpMessageAction;
     QAction *sigmaAction;
     QAction *zc2SigmaAction;
-    QAction *znodeAction;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -208,8 +207,6 @@ private Q_SLOTS:
     void gotoHistoryPage();
     /** Switch directly to Zcoin history tab */
     void gotoBitcoinHistoryTab();
-    /** Switch to znode page */
-    void gotoZnodePage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */

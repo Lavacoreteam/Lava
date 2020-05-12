@@ -76,16 +76,8 @@
 #include <event2/util.h>
 #include <event2/event.h>
 #include <event2/thread.h>
-#include "activeznode.h"
-#include "darksend.h"
-#include "znode-payments.h"
-#include "znode-sync.h"
-#include "znodeman.h"
-#include "znodeconfig.h"
 #include "netfulfilledman.h"
 #include "flat-database.h"
-#include "instantx.h"
-#include "spork.h"
 
 #if ENABLE_ZMQ
 #include "zmq/zmqnotificationinterface.h"
@@ -244,11 +236,6 @@ void Shutdown() {
 #endif
     GenerateBitcoins(false, 0, Params());
     StopNode();
-
-    CFlatDB<CZnodeMan> flatdb1("zncache.dat", "magicZnodeCache");
-    flatdb1.Dump(mnodeman);
-    CFlatDB<CZnodePayments> flatdb2("znpayments.dat", "magicZnodePaymentsCache");
-    flatdb2.Dump(mnpayments);
     CFlatDB<CNetFulfilledRequestManager> flatdb4("netfulfilled.dat", "magicFulfilledCache");
     flatdb4.Dump(netfulfilledman);
 
@@ -1976,137 +1963,10 @@ bool AppInit2(boost::thread_group &threadGroup, CScheduler &scheduler) {
     // Generate coins in the background
     GenerateBitcoins(GetBoolArg("-gen", DEFAULT_GENERATE), GetArg("-genproclimit", DEFAULT_GENERATE_THREADS),
                      chainparams);
-
-    // ********************************************************* Step 11a: setup PrivateSend
-    fZNode = GetBoolArg("-znode", false);
-
-    LogPrintf("fZNode = %s\n", fZNode);
-    LogPrintf("znodeConfig.getCount(): %s\n", znodeConfig.getCount());
-
-    if ((fZNode || znodeConfig.getCount() > 0) && !fTxIndex) {
-        return InitError("Enabling Znode support requires turning on transaction indexing."
-                                 "Please add txindex=1 to your configuration and start with -reindex");
-    }
-
-    if (fZNode) {
-        LogPrintf("ZNODE:\n");
-
-        if (!GetArg("-znodeaddr", "").empty()) {
-            // Hot Znode (either local or remote) should get its address in
-            // CActiveZnode::ManageState() automatically and no longer relies on Znodeaddr.
-            return InitError(_("znodeaddr option is deprecated. Please use znode.conf to manage your remote znodes."));
-        }
-
-        std::string strZnodePrivKey = GetArg("-znodeprivkey", "");
-        if (!strZnodePrivKey.empty()) {
-            if (!darkSendSigner.GetKeysFromSecret(strZnodePrivKey, activeZnode.keyZnode,
-                                                  activeZnode.pubKeyZnode))
-                return InitError(_("Invalid znodeprivkey. Please see documentation."));
-
-            LogPrintf("  pubKeyZnode: %s\n", CBitcoinAddress(activeZnode.pubKeyZnode.GetID()).ToString());
-        } else {
-            return InitError(
-                    _("You must specify a znodeprivkey in the configuration. Please see documentation for help."));
-        }
-    }
-
-    LogPrintf("Using Znode config file %s\n", GetZnodeConfigFile().string());
-
-    if (GetBoolArg("-znconflock", true) && pwalletMain && (znodeConfig.getCount() > 0)) {
-        LOCK(pwalletMain->cs_wallet);
-        LogPrintf("Locking Znodes:\n");
-        uint256 mnTxHash;
-        int outputIndex;
-        BOOST_FOREACH(CZnodeConfig::CZnodeEntry mne, znodeConfig.getEntries()) {
-            mnTxHash.SetHex(mne.getTxHash());
-            outputIndex = boost::lexical_cast<unsigned int>(mne.getOutputIndex());
-            COutPoint outpoint = COutPoint(mnTxHash, outputIndex);
-            // don't lock non-spendable outpoint (i.e. it's already spent or it's not from this wallet at all)
-            if (pwalletMain->IsMine(CTxIn(outpoint)) != ISMINE_SPENDABLE) {
-                LogPrintf("  %s %s - IS NOT SPENDABLE, was not locked\n", mne.getTxHash(), mne.getOutputIndex());
-                continue;
-            }
-            pwalletMain->LockCoin(outpoint);
-            LogPrintf("  %s %s - locked successfully\n", mne.getTxHash(), mne.getOutputIndex());
-        }
-    }
-
-    nLiquidityProvider = GetArg("-liquidityprovider", nLiquidityProvider);
-    nLiquidityProvider = std::min(std::max(nLiquidityProvider, 0), 100);
-    darkSendPool.SetMinBlockSpacing(nLiquidityProvider * 15);
-
-    fEnablePrivateSend = false;
-//    fEnablePrivateSend = GetBoolArg("-enableprivatesend", 0);
-//    fPrivateSendMultiSession = GetBoolArg("-privatesendmultisession", DEFAULT_PRIVATESEND_MULTISESSION);
-//    nPrivateSendRounds = GetArg("-privatesendrounds", DEFAULT_PRIVATESEND_ROUNDS);
-//    nPrivateSendRounds = std::min(std::max(nPrivateSendRounds, 2), nLiquidityProvider ? 99999 : 16);
-//    nPrivateSendAmount = GetArg("-privatesendamount", DEFAULT_PRIVATESEND_AMOUNT);
-//    nPrivateSendAmount = std::min(std::max(nPrivateSendAmount, 2), 999999);
-
-    fEnableInstantSend = false;
-//    fEnableInstantSend = GetBoolArg("-enableinstantsend", 1);
-//    nInstantSendDepth = GetArg("-instantsenddepth", DEFAULT_INSTANTSEND_DEPTH);
-//    nInstantSendDepth = std::min(std::max(nInstantSendDepth, 0), 60);
-
     // lite mode disables all Znode and Darksend related functionality
     fLiteMode = GetBoolArg("-litemode", false);
-    if (fZNode && fLiteMode) {
-        return InitError("You can not start a znode in litemode");
-    }
 
     LogPrintf("fLiteMode %d\n", fLiteMode);
-//    LogPrintf("nInstantSendDepth %d\n", nInstantSendDepth);
-//    LogPrintf("PrivateSend rounds %d\n", nPrivateSendRounds);
-//    LogPrintf("PrivateSend amount %d\n", nPrivateSendAmount);
-
-    darkSendPool.InitDenominations();
-
-    // ********************************************************* Step 11b: Load cache data
-
-    // LOAD SERIALIZED DAT FILES INTO DATA CACHES FOR INTERNAL USE
-    if (GetBoolArg("-persistentznodestate", true)) {
-        uiInterface.InitMessage(_("Loading znode cache..."));
-        CFlatDB<CZnodeMan> flatdb1("zncache.dat", "magicZnodeCache");
-        if (!flatdb1.Load(mnodeman)) {
-            return InitError("Failed to load znode cache from zncache.dat");
-        }
-
-        if (mnodeman.size()) {
-            uiInterface.InitMessage(_("Loading Znode payment cache..."));
-            CFlatDB<CZnodePayments> flatdb2("znpayments.dat", "magicZnodePaymentsCache");
-            if (!flatdb2.Load(mnpayments)) {
-                return InitError("Failed to load znode payments cache from znpayments.dat");
-            }
-        } else {
-            uiInterface.InitMessage(_("Znode cache is empty, skipping payments cache..."));
-        }
-
-        uiInterface.InitMessage(_("Loading fulfilled requests cache..."));
-        CFlatDB<CNetFulfilledRequestManager> flatdb4("netfulfilled.dat", "magicFulfilledCache");
-        flatdb4.Load(netfulfilledman);
-    }
-
-    // if (!flatdb4.Load(netfulfilledman)) {
-    //     LogPrint"Failed to load fulfilled requests cache from netfulfilled.dat");
-    // }
-
-    // ********************************************************* Step 11c: update block tip in Zcoin modules
-
-    // force UpdatedBlockTip to initialize pCurrentBlockIndex for DS, MN payments and budgets
-    // but don't call it directly to prevent triggering of other listeners like zmq etc.
-    // GetMainSignals().UpdatedBlockTip(chainActive.Tip());
-    mnodeman.UpdatedBlockTip(chainActive.Tip());
-    darkSendPool.UpdatedBlockTip(chainActive.Tip());
-    mnpayments.UpdatedBlockTip(chainActive.Tip());
-    znodeSync.UpdatedBlockTip(chainActive.Tip());
-    // governance.UpdatedBlockTip(chainActive.Tip());
-
-    // ********************************************************* Step 11d: start dash-privatesend thread
-
-    threadGroup.create_thread(boost::bind(&ThreadCheckDarkSendPool));
-
-
-
     // ********************************************************* Step 12: finished
 
     SetRPCWarmupFinished();

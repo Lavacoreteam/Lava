@@ -42,27 +42,6 @@ namespace NetMsgType {
     const char *GETBLOCKTXN = "getblocktxn";
     const char *BLOCKTXN = "blocktxn";
     const char *DANDELIONTX="dandeliontx";
-//znode
-    const char *TXLOCKVOTE="txlvote";
-    const char *SPORK = "spork";
-    const char *GETSPORKS = "getsporks";
-    const char *ZNODEPAYMENTVOTE = "mnw";
-    const char *ZNODEPAYMENTBLOCK = "mnwb";
-    const char *ZNODEPAYMENTSYNC = "mnget";
-    const char *MNANNOUNCE = "mnb";
-    const char *MNPING = "mnp";
-    const char *DSACCEPT = "dsa";
-    const char *DSVIN = "dsi";
-    const char *DSFINALTX = "dsf";
-    const char *DSSIGNFINALTX = "dss";
-    const char *DSCOMPLETE = "dsc";
-    const char *DSSTATUSUPDATE = "dssu";
-    const char *DSTX = "dstx";
-    const char *DSQUEUE = "dsq";
-    const char *DSEG = "dseg";
-    const char *SYNCSTATUSCOUNT = "ssc";
-    const char *MNVERIFY = "mnv";
-    const char *TXLOCKREQUEST = "ix";
 
 };
 
@@ -97,26 +76,6 @@ const static std::string allNetMessageTypes[] = {
         NetMsgType::GETBLOCKTXN,
         NetMsgType::BLOCKTXN,
 		NetMsgType::DANDELIONTX,
-        //znode
-        NetMsgType::TXLOCKREQUEST,
-        NetMsgType::ZNODEPAYMENTVOTE,
-        NetMsgType::ZNODEPAYMENTBLOCK,
-        NetMsgType::ZNODEPAYMENTSYNC,
-        NetMsgType::SPORK,
-        NetMsgType::GETSPORKS,
-        NetMsgType::MNANNOUNCE,
-        NetMsgType::MNPING,
-        NetMsgType::DSACCEPT,
-        NetMsgType::DSVIN,
-        NetMsgType::DSFINALTX,
-        NetMsgType::DSSIGNFINALTX,
-        NetMsgType::DSCOMPLETE,
-        NetMsgType::DSSTATUSUPDATE,
-        NetMsgType::DSTX,
-        NetMsgType::DSQUEUE,
-        NetMsgType::DSEG,
-        NetMsgType::SYNCSTATUSCOUNT,
-        NetMsgType::MNVERIFY,
 
 };
 const static std::vector <std::string> allNetMessageTypesVec(allNetMessageTypes, allNetMessageTypes + ARRAYLEN(allNetMessageTypes));
@@ -206,15 +165,6 @@ const char* CInv::GetCommand() const
         case MSG_FILTERED_BLOCK:        return NetMsgType::MERKLEBLOCK;
         case MSG_CMPCT_BLOCK:           return NetMsgType::CMPCTBLOCK;
         case MSG_DANDELION_TX:   		return NetMsgType::DANDELIONTX;
-        case MSG_TXLOCK_REQUEST:        return NetMsgType::TXLOCKREQUEST;
-        case MSG_TXLOCK_VOTE:           return NetMsgType::TXLOCKVOTE;
-        case MSG_SPORK:                 return NetMsgType::SPORK;
-        case MSG_ZNODE_PAYMENT_VOTE:    return NetMsgType::ZNODEPAYMENTVOTE;
-        case MSG_ZNODE_PAYMENT_BLOCK:   return NetMsgType::ZNODEPAYMENTBLOCK;
-        case MSG_ZNODE_ANNOUNCE:        return NetMsgType::MNANNOUNCE;
-        case MSG_ZNODE_PING:            return NetMsgType::MNPING;
-        case MSG_DSTX:                  return NetMsgType::DSTX;
-        case MSG_ZNODE_VERIFY:          return NetMsgType::MNVERIFY;
         default: {
             return "error";
         }
