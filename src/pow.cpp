@@ -15,7 +15,6 @@
 #include "chainparams.h"
 #include "libzerocoin/bitcoin_bignum/bignum.h"
 #include "utilstrencodings.h"
-#include "mtpstate.h"
 #include "fixed.h"
 
 static CBigNum bnProofOfWorkLimit(~arith_uint256(0) >> 8);
@@ -49,8 +48,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex *pindexLast, const CBlockHead
         }
     }
 
-    int nFirstMTPBlock = MTPState::GetMTPState()->GetFirstMTPBlockNumber(params, pindexLast);
-    bool fMTP = nFirstMTPBlock > 0;
+    bool fMTP = false;
 
     const uint32_t BlocksTargetSpacing = 
         (params.nMTPFiveMinutesStartBlock == 0 && fMTP) || (params.nMTPFiveMinutesStartBlock > 0 && pindexLast->nHeight >= params.nMTPFiveMinutesStartBlock) ?
@@ -61,14 +59,6 @@ unsigned int GetNextWorkRequired(const CBlockIndex *pindexLast, const CBlockHead
     uint32_t PastBlocksMin = PastSecondsMin / BlocksTargetSpacing; // 36 blocks
     uint32_t PastBlocksMax = PastSecondsMax / BlocksTargetSpacing; // 1008 blocks
     uint32_t StartingPoWBlock = 0;
-
-    if (nFirstMTPBlock > 1) {
-        // There are both legacy and MTP blocks in the chain. Limit PoW calculation scope to MTP blocks only
-        uint32_t numberOfMTPBlocks = pindexLast->nHeight - nFirstMTPBlock + 1;
-        PastBlocksMin = std::min(PastBlocksMin, numberOfMTPBlocks);
-        PastBlocksMax = std::min(PastBlocksMax, numberOfMTPBlocks);
-        StartingPoWBlock = nFirstMTPBlock;
-    }
 
     if ((pindexLast->nHeight + 1 - StartingPoWBlock) % params.DifficultyAdjustmentInterval(fMTP) != 0) // Retarget every nInterval blocks
     {

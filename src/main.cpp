@@ -49,7 +49,6 @@
 #include "versionbits.h"
 #include "definition.h"
 #include "utiltime.h"
-#include "mtpstate.h"
 
 #include "coins.h"
 
@@ -3052,9 +3051,6 @@ bool ConnectBlock(const CBlock &block, CValidationState &state, CBlockIndex *pin
     LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2),
              nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs - 1), nTimeVerify * 0.000001);
 
-    if (!fJustCheck)
-        MTPState::GetMTPState()->SetLastBlock(pindex, chainparams.GetConsensus());
-
     if (!ConnectBlockZC(state, chainparams, pindex, &block, fJustCheck) ||
         !sigma::ConnectBlockSigma(state, chainparams, pindex, &block, fJustCheck))
         return false;
@@ -3413,8 +3409,6 @@ bool static DisconnectTip(CValidationState &state, const CChainParams &chainpara
 
 	DisconnectTipZC(block, pindexDelete);
 	sigma::DisconnectTipSigma(block, pindexDelete);
-    // Roll back MTP state
-    MTPState::GetMTPState()->SetLastBlock(pindexDelete->pprev, chainparams.GetConsensus());
 
     // Write the chain state to disk, if necessary.
     if (!FlushStateToDisk(state, FLUSH_STATE_IF_NEEDED))
@@ -5149,8 +5143,6 @@ bool static LoadBlockIndexDB() {
         setDirtyBlockIndex.insert(changes.begin(), changes.end());
         FlushStateToDisk();
     }
-    // Initialize MTP state
-    MTPState::GetMTPState()->InitializeFromChain(&chainActive, chainparams.GetConsensus());
 
     LogPrintf("%s: hashBestChain=%s height=%d date=%s progress=%f\n", __func__,
               chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(),
