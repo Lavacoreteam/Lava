@@ -17,6 +17,9 @@
 #include <boost/optional.hpp>
 #include "znodesync-interface.h"
 
+unsigned long gettime(){
+    return std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+}
 /**
  * Constructor for CHDMintWallet object.
  *
@@ -133,7 +136,7 @@ std::pair<uint256,uint256> CHDMintWallet::RegenerateMintPoolEntry(const uint160&
  * Generates 20 mints at a time.
  * Makes the appropriate database entries.
  *
- * @param nIndex The number of mints to generate. Defaults to 20 if no param passed.
+ * @param nIndex index of the first mint to generate. if no param passed we continue generating from the index of the last mint in memory.
  */
 void CHDMintWallet::GenerateMintPool(int32_t nIndex)
 {
@@ -152,19 +155,19 @@ void CHDMintWallet::GenerateMintPool(int32_t nIndex)
         nStop = nIndex + 20;
     LogPrintf("%s : nLastCount=%d nStop=%d\n", __func__, nLastCount, nStop - 1);
     for (; nLastCount <= nStop; ++nLastCount) {
+        //printf ("%s: %d - %lu - %d\n", __FUNCTION__, __LINE__, gettime(), nLastCount);
         if (ShutdownRequested())
             return;
 
         CKeyID seedId;
         uint512 mintSeed;
-        if(!CreateMintSeed(mintSeed, nLastCount, seedId))
+        if(!CreateMintSeed(mintSeed, nLastCount, seedId, false))
             continue;
 
         GroupElement commitmentValue;
         sigma::PrivateCoin coin(sigma::Params::get_default(), sigma::CoinDenomination::SIGMA_DENOM_1);
         if(!SeedToMint(mintSeed, commitmentValue, coin))
             continue;
-
         uint256 hashPubcoin = primitives::GetPubCoinValueHash(commitmentValue);
 
         MintPoolEntry mintPoolEntry(hashSeedMaster, seedId, nLastCount);
@@ -172,7 +175,13 @@ void CHDMintWallet::GenerateMintPool(int32_t nIndex)
         walletdb.WritePubcoin(primitives::GetSerialHash(coin.getSerialNumber()), commitmentValue);
         walletdb.WriteMintPoolPair(hashPubcoin, mintPoolEntry);
         LogPrintf("%s : hashSeedMaster=%s hashPubcoin=%s seedId=%d count=%d\n", __func__, hashSeedMaster.GetHex(), hashPubcoin.GetHex(), seedId.GetHex(), nLastCount);
+        if(nLastCount%100==0)
+            printf ("%s: %d - %lu - %d\n", __FUNCTION__, __LINE__, gettime(), nLastCount);
     }
+
+    // write hdchain back to database
+    if (!walletdb.WriteHDChain(pwalletMain->GetHDChain()))
+        throw std::runtime_error(std::string(__func__) + ": Writing HD chain model failed");
 
     // Update local + DB entries for count last generated
     nCountNextGenerate = nLastCount;
@@ -430,7 +439,7 @@ bool CHDMintWallet::SetMintSeedSeen(std::pair<uint256,MintPoolEntry> mintPoolEnt
 
     LogPrintf("%s: Adding mint to tracker.. \n", __func__);
     // Add to tracker which also adds to database
-    tracker.Add(dMint, true);
+    tracker.Add(walletdb, dMint, true);
 
     return true;
 }
@@ -513,7 +522,7 @@ CKeyID CHDMintWallet::GetMintSeedID(int32_t nCount){
  * @param seedId (optional) seedId of the key to use for mint generation.
  * @return sucess
  */
-bool CHDMintWallet::CreateMintSeed(uint512& mintSeed, const int32_t& nCount, CKeyID& seedId)
+bool CHDMintWallet::CreateMintSeed(uint512& mintSeed, const int32_t& nCount, CKeyID& seedId, bool nWriteChain)
 {
     LOCK(pwalletMain->cs_wallet);
     CKey key;
@@ -523,7 +532,7 @@ bool CHDMintWallet::CreateMintSeed(uint512& mintSeed, const int32_t& nCount, CKe
         int32_t chainIndex = pwalletMain->GetHDChain().nExternalChainCounters[BIP44_MINT_INDEX];
         if(nCount==chainIndex){
             // If chainIndex is the same as n (ie. we are generating next available key), generate a new key.
-            pubKey = pwalletMain->GenerateNewKey(BIP44_MINT_INDEX);
+            pubKey = pwalletMain->GenerateNewKey(BIP44_MINT_INDEX, nWriteChain);
         }
         else if(nCount<chainIndex){
             // if it's less than the current chain index, we are regenerating the mintpool. get the key at n
@@ -655,6 +664,7 @@ bool CHDMintWallet::GetHDMintFromMintPoolEntry(const sigma::CoinDenomination den
  */
 bool CHDMintWallet::GenerateMint(const sigma::CoinDenomination denom, sigma::PrivateCoin& coin, CHDMint& dMint, boost::optional<MintPoolEntry> mintPoolEntry, bool fAllowUnsynced)
 {
+    //printf ("%s: %d - %lu\n", __FUNCTION__, __LINE__, gettime());
     if (!znodeSyncInterface.IsBlockchainSynced() && !fAllowUnsynced && !(Params().NetworkIDString() == CBaseChainParams::REGTEST))
         throw ZerocoinException("Unable to generate mint: Blockchain not yet synced.");
 

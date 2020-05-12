@@ -175,7 +175,7 @@ CPubKey CWallet::GetKeyFromKeypath(uint32_t nChange, uint32_t nChild) {
     return pubkey;
 }
 
-CPubKey CWallet::GenerateNewKey(uint32_t nChange)
+CPubKey CWallet::GenerateNewKey(uint32_t nChange, bool nWriteChain)
 {
     AssertLockHeld(cs_wallet); // mapKeyMetadata
     bool fCompressed = CanSupportFeature(FEATURE_COMPRPUBKEY); // default to compressed public keys if we want 0.6.0 wallets
@@ -242,8 +242,10 @@ CPubKey CWallet::GenerateNewKey(uint32_t nChange)
         secret = childKey.key;
 
         // update the chain model in the database
-        if (!CWalletDB(strWalletFile).WriteHDChain(hdChain))
-            throw std::runtime_error(std::string(__func__) + ": Writing HD chain model failed");
+        if(nWriteChain){
+            if (!CWalletDB(strWalletFile).WriteHDChain(hdChain))
+                throw std::runtime_error(std::string(__func__) + ": Writing HD chain model failed");
+        }
     /* bitcoin 0.14:
     if (IsHDEnabled()) {
         DeriveNewChildKey(metadata, secret);
@@ -4198,7 +4200,7 @@ bool CWallet::CreateSigmaMintModel(string &stringError, const string& denomAmoun
         CWalletDB walletdb(pwalletMain->strWalletFile);
 
         dMint.SetTxHash(wtx.GetHash());
-        zwallet->GetTracker().Add(dMint, true);
+        zwallet->GetTracker().Add(walletdb, dMint, true);
 
         LogPrintf("CreateZerocoinMintModel() -> NotifyZerocoinChanged\n");
         LogPrintf("pubcoin=%s, isUsed=%s\n", newCoin.getPublicCoin().getValue().GetHex(), dMint.IsUsed());
@@ -4518,7 +4520,7 @@ bool CWallet::CreateZerocoinToSigmaRemintModel(string &stringError, int version,
     //update mints with full transaction hash and then database them
     for (CHDMint hdMint : vHDMints) {
         hdMint.SetTxHash(wtxNew.GetHash());
-        zwallet->GetTracker().Add(hdMint, true);
+        zwallet->GetTracker().Add(walletdb, hdMint, true);
         NotifyZerocoinChanged(this,
             hdMint.GetPubcoinValue().GetHex(),
             "New (" + std::to_string(hdMint.GetDenominationValue()) + " mint)",
@@ -6576,7 +6578,7 @@ string CWallet::MintAndStoreSigma(const vector<CRecipient>& vecSend,
     CWalletDB walletdb(pwalletMain->strWalletFile);
     for (CHDMint dMint : vDMints) {
         dMint.SetTxHash(wtxNew.GetHash());
-        zwallet->GetTracker().Add(dMint, true);
+        zwallet->GetTracker().Add(walletdb, dMint, true);
         NotifyZerocoinChanged(this,
              dMint.GetPubcoinValue().GetHex(),
             "New (" + std::to_string(dMint.GetDenominationValue()) + " mint)",
@@ -6983,7 +6985,7 @@ bool CWallet::CommitSigmaTransaction(CWalletTx& wtxNew, std::vector<CSigmaEntry>
 
     // mark selected coins as used
     sigma::CSigmaState* sigmaState = sigma::CSigmaState::GetState();
-    CWalletDB db(strWalletFile);
+    CWalletDB walletdb(strWalletFile);
 
     for (auto& coin : selectedCoins) {
         // get coin id & height
@@ -7001,7 +7003,7 @@ bool CWallet::CommitSigmaTransaction(CWalletTx& wtxNew, std::vector<CSigmaEntry>
         spend.id = id;
         spend.set_denomination_value(coin.get_denomination_value());
 
-        if (!db.WriteCoinSpendSerialEntry(spend)) {
+        if (!walletdb.WriteCoinSpendSerialEntry(spend)) {
             throw std::runtime_error(_("Failed to write coin serial number into wallet"));
         }
 
@@ -7033,7 +7035,7 @@ bool CWallet::CommitSigmaTransaction(CWalletTx& wtxNew, std::vector<CSigmaEntry>
 
     for (auto& change : changes) {
         change.SetTxHash(wtxNew.GetHash());
-        zwallet->GetTracker().Add(change, true);
+        zwallet->GetTracker().Add(walletdb, change, true);
 
         // raise event
         NotifyZerocoinChanged(this,
