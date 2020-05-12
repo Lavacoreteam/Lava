@@ -131,7 +131,6 @@ public:
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000708f98bf623f02e");
 
         consensus.nCheckBugFixedAtBlock = ZC_CHECK_BUG_FIXED_AT_BLOCK;
-        consensus.nZnodePaymentsBugFixedAtBlock = ZC_ZNODE_PAYMENT_BUG_FIXED_AT_BLOCK;
 	    consensus.nSpendV15StartBlock = ZC_V1_5_STARTING_BLOCK;
 	    consensus.nSpendV2ID_1 = ZC_V2_SWITCH_ID_1;
 	    consensus.nSpendV2ID_10 = ZC_V2_SWITCH_ID_10;
@@ -143,15 +142,6 @@ public:
 	    consensus.nModulusV1StopBlock = ZC_MODULUS_V1_STOP_BLOCK;
         consensus.nMultipleSpendInputsInOneTxStartBlock = ZC_MULTIPLE_SPEND_INPUT_STARTING_BLOCK;
         consensus.nDontAllowDupTxsStartBlock = 119700;
-
-        // znode params
-        consensus.nZnodePaymentsStartBlock = HF_ZNODE_PAYMENT_START; // not true, but it's ok as long as it's less then nZnodePaymentsIncreaseBlock
-        // consensus.nZnodePaymentsIncreaseBlock = 680000; // actual historical value // not used for now, probably later
-        // consensus.nZnodePaymentsIncreasePeriod = 576*30; // 17280 - actual historical value // not used for now, probably later
-        // consensus.nSuperblockStartBlock = 614820;
-        // consensus.nBudgetPaymentsStartBlock = 328008; // actual historical value
-        // consensus.nBudgetPaymentsCycleBlocks = 16616; // ~(60*24*30)/2.6, actual number of blocks per month is 200700 / 12 = 16725
-        // consensus.nBudgetPaymentsWindowBlocks = 100;
 
         consensus.nMTPSwitchTime = SWITCH_TO_MTP_BLOCK_HEADER;
         consensus.nMTPFiveMinutesStartBlock = SWITCH_TO_MTP_5MIN_BLOCK;
@@ -331,7 +321,6 @@ public:
 
         consensus.nSpendV15StartBlock = 5000;
         consensus.nCheckBugFixedAtBlock = 1;
-        consensus.nZnodePaymentsBugFixedAtBlock = 1;
 
         consensus.nSpendV2ID_1 = ZC_V2_TESTNET_SWITCH_ID_1;
         consensus.nSpendV2ID_10 = ZC_V2_TESTNET_SWITCH_ID_10;
@@ -345,13 +334,6 @@ public:
         consensus.nDontAllowDupTxsStartBlock = 18825;
 
         // Znode params testnet
-        consensus.nZnodePaymentsStartBlock = 2200;
-        //consensus.nZnodePaymentsIncreaseBlock = 360; // not used for now, probably later
-        //consensus.nZnodePaymentsIncreasePeriod = 650; // not used for now, probably later
-        //consensus.nSuperblockStartBlock = 61000;
-        //consensus.nBudgetPaymentsStartBlock = 60000;
-        //consensus.nBudgetPaymentsCycleBlocks = 50;
-        //consensus.nBudgetPaymentsWindowBlocks = 10;
         nMaxTipAge = 0x7fffffff; // allow mining on top of old blocks for testnet
 
         consensus.nMTPSwitchTime = 1539172800;
@@ -493,7 +475,6 @@ public:
         consensus.nPowTargetSpacing = 1; // 10 minute blocks
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
-        consensus.nZnodePaymentsStartBlock = 120;
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
         consensus.nMinerConfirmationWindow = 144; // Faster than normal for regtest (144 instead of 2016)
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -516,7 +497,6 @@ public:
         nMaxTipAge = 6 * 60 * 60; // ~144 blocks behind -> 2 x fork detection time, was 24 * 60 * 60 in bitcoin
 
         consensus.nCheckBugFixedAtBlock = 120;
-        consensus.nZnodePaymentsBugFixedAtBlock = 1;
         consensus.nSpendV15StartBlock = 1;
         consensus.nSpendV2ID_1 = 2;
         consensus.nSpendV2ID_10 = 3;

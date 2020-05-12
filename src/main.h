@@ -165,10 +165,6 @@ static const int MAX_UNCONNECTING_HEADERS = 10;
 static std::map<int, CBlock> mapBlockData;
 
 static const bool DEFAULT_PEERBLOOMFILTERS = true;
-
-// Block Height Lyra2Z
-#define LYRA2Z_HEIGHT 20500
-
 // Block Height Limit Spend One TX Per Block
 #define OLD_LIMIT_SPEND_TXS 22000
 

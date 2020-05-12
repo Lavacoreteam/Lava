@@ -10,7 +10,7 @@
 static const int64_t DUST_HARD_LIMIT = 1000;   // 0.00001 XZC mininput
 
 // There were bugs before this block, don't do some checks on early blocks
-#define ZC_CHECK_BUG_FIXED_AT_BLOCK         61168
+#define ZC_CHECK_BUG_FIXED_AT_BLOCK         0
 
 // Before this block we allowed not paying to the znodes.
 #define ZC_ZNODE_PAYMENT_BUG_FIXED_AT_BLOCK         107246

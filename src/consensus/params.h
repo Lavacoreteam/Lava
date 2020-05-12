@@ -82,18 +82,9 @@ struct Params {
     int64_t nChainStartTime;
     unsigned char nMinNFactor;
     unsigned char nMaxNFactor;
-    //int nBudgetPaymentsStartBlock;
-    //int nBudgetPaymentsCycleBlocks;
-    //int nBudgetPaymentsWindowBlocks;
-    int nZnodeMinimumConfirmations;
-    int nZnodePaymentsStartBlock;
-    //int nZnodePaymentsIncreaseBlock;
-    //int nZnodePaymentsIncreasePeriod; // in blocks
-    //int nSuperblockStartBlock;
 
 	/** Zerocoin-related block numbers when features are changed */
     int nCheckBugFixedAtBlock;
-    int nZnodePaymentsBugFixedAtBlock;
 	int nSpendV15StartBlock;
 	int nSpendV2ID_1, nSpendV2ID_10, nSpendV2ID_25, nSpendV2ID_50, nSpendV2ID_100;
 

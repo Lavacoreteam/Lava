@@ -28,9 +28,6 @@
 #include "wallet/wallet.h"
 #include "definition.h"
 #include "crypto/scrypt.h"
-#include "crypto/MerkleTreeProof/mtp.h"
-#include "crypto/Lyra2Z/Lyra2Z.h"
-#include "crypto/Lyra2Z/Lyra2.h"
 #include "zerocoin.h"
 #include "sigma.h"
 #include "sigma/remint.h"
@@ -172,7 +169,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
         CScript FOUNDER_3_SCRIPT;
         CScript FOUNDER_4_SCRIPT;
         CScript FOUNDER_5_SCRIPT;
-        if (nHeight >= Params().GetConsensus().nZnodePaymentsStartBlock) {
             // Take some reward away from us
             coinbaseTx.vout[0].nValue = -7 * coin;
 
@@ -202,7 +198,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
             coinbaseTx.vout.push_back(CTxOut(1 * coin, CScript(FOUNDER_3_SCRIPT.begin(), FOUNDER_3_SCRIPT.end())));
             coinbaseTx.vout.push_back(CTxOut(3 * coin, CScript(FOUNDER_4_SCRIPT.begin(), FOUNDER_4_SCRIPT.end())));
             coinbaseTx.vout.push_back(CTxOut(1 * coin, CScript(FOUNDER_5_SCRIPT.begin(), FOUNDER_5_SCRIPT.end())));
-        }
     }
 
     // Add dummy coinbase tx as first transaction
@@ -508,10 +503,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
         pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
         pblock->nNonce         = 0;
-
-        // Zcoin - MTP
-        if (pblock->IsMTP())
-            pblock->mtpHashData = make_shared<CMTPHashData>();
 
         pblocktemplate->vTxSigOpsCost[0] = GetLegacySigOpCount(pblock->vtx[0]);
 
@@ -1134,40 +1125,10 @@ void static ZcoinMiner(const CChainParams &chainparams) {
 
             while (true) {
                 // Check if something found
-                uint256 thash;
+                uint256 thash = pblock->GetHash();
 
                 while (true) {
-                    if (pblock->IsMTP()) {
-                        //sleep(60);
-                        LogPrintf("BEFORE: mtp_hash\n");
-                        thash = mtp::hash(*pblock, Params().GetConsensus().powLimit);
-                        pblock->mtpHashValue = thash;
-                    } else if (!fTestNet && pindexPrev->nHeight + 1 >= HF_LYRA2Z_HEIGHT) {
-                        lyra2z_hash(BEGIN(pblock->nVersion), BEGIN(thash));
-                    } else if (!fTestNet && pindexPrev->nHeight + 1 >= HF_LYRA2_HEIGHT) {
-                        LYRA2(BEGIN(thash), 32, BEGIN(pblock->nVersion), 80, BEGIN(pblock->nVersion), 80, 2, 8192, 256);
-                    } else if (!fTestNet && pindexPrev->nHeight + 1 >= HF_LYRA2VAR_HEIGHT) {
-                        LYRA2(BEGIN(thash), 32, BEGIN(pblock->nVersion), 80, BEGIN(pblock->nVersion), 80, 2,
-                              pindexPrev->nHeight + 1, 256);
-                    } else if (fTestNet && pindexPrev->nHeight + 1 >= HF_LYRA2Z_HEIGHT_TESTNET) { // testnet
-                        lyra2z_hash(BEGIN(pblock->nVersion), BEGIN(thash));
-                    } else if (fTestNet && pindexPrev->nHeight + 1 >= HF_LYRA2_HEIGHT_TESTNET) { // testnet
-                        LYRA2(BEGIN(thash), 32, BEGIN(pblock->nVersion), 80, BEGIN(pblock->nVersion), 80, 2, 8192, 256);
-                    } else if (fTestNet && pindexPrev->nHeight + 1 >= HF_LYRA2VAR_HEIGHT_TESTNET) { // testnet
-                        LYRA2(BEGIN(thash), 32, BEGIN(pblock->nVersion), 80, BEGIN(pblock->nVersion), 80, 2, pindexPrev->nHeight + 1, 256);
-                    } else {
-                        unsigned long int scrypt_scratpad_size_current_block =
-                                ((1 << (GetNfactor(pblock->nTime) + 1)) * 128) + 63;
-                        char *scratchpad = (char *) malloc(scrypt_scratpad_size_current_block * sizeof(char));
-                        scrypt_N_1_1_256_sp_generic(BEGIN(pblock->nVersion), BEGIN(thash), scratchpad,
-                                                    GetNfactor(pblock->nTime));
-//                        LogPrintf("scrypt thash: %s\n", thash.ToString().c_str());
-//                        LogPrintf("hashTarget: %s\n", hashTarget.ToString().c_str());
-                        free(scratchpad);
-                    }
-
                     //LogPrintf("*****\nhash   : %s  \ntarget : %s\n", UintToArith256(thash).ToString(), hashTarget.ToString());
-
                     if (UintToArith256(thash) <= hashTarget) {
                         // Found a solution
                         LogPrintf("Found a solution. Hash: %s", UintToArith256(thash).ToString());

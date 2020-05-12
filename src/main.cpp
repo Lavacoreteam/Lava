@@ -2054,11 +2054,6 @@ bool ReadBlockFromDisk(CBlock &block, const CDiskBlockPos &pos, int nHeight, con
         return error("%s: Deserialize or I/O error - %s at %s", __func__, e.what(), pos.ToString());
     }
 
-    // Zcoin - MTP
-    if (!CheckMerkleTreeProof(block, consensusParams)){
-    	return error("ReadBlockFromDisk: CheckMerkleTreeProof: Errors in block header at %s", pos.ToString());
-    }
-
     // Check the header
     if (!CheckProofOfWork(block.GetPoWHash(nHeight), block.nBits, consensusParams)){
         //Maybe cache is not valid
@@ -2674,7 +2669,6 @@ bool DisconnectBlock(const CBlock &block, CValidationState &state, const CBlockI
 
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
-    block.InvalidateCachedPoWHash(pindex->nHeight);
 
     //The pfClean flag is specified only when called from CVerifyDB::VerifyDB.
     //When called from there, no real disconnect happens.
@@ -2939,7 +2933,7 @@ bool ConnectBlock(const CBlock &block, CValidationState &state, CBlockIndex *pin
         const CTransaction &tx = block.vtx[i];
 
         uint256 txHash = tx.GetHash();
-        if (txIds.count(txHash) > 0 && (fTestNet || pindex->nHeight >= HF_ZNODE_HEIGHT))
+        if (txIds.count(txHash) > 0)
             return state.DoS(100, error("ConnectBlock(): duplicate transactions in the same block"),
                              REJECT_INVALID, "bad-txns-duplicatetxid");
         txIds.insert(txHash);
@@ -4368,10 +4362,6 @@ bool CheckBlock(const CBlock &block, CValidationState &state,
                 LogPrintf("CheckBlock - mutated -> failed!\n");
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-duplicate", true, "duplicate transaction");
             }
-
-            // Zcoin - MTP
-            if (block.IsMTP() && !CheckMerkleTreeProof(block, consensusParams))
-                return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, "incorrect proof of work");
         }
 
         // All potential-corruption validation must be done before we do any
@@ -4402,7 +4392,7 @@ bool CheckBlock(const CBlock &block, CValidationState &state,
         if (nHeight == INT_MAX)
             nHeight = ZerocoinGetNHeight(block.GetBlockHeader());
 
-        if (!CheckZerocoinFoundersInputs(block.vtx[0], state, Params().GetConsensus(), nHeight, block.IsMTP())) {
+        if (!CheckZerocoinFoundersInputs(block.vtx[0], state, Params().GetConsensus(), nHeight)) {
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(), "Founders' reward check failed");
         }
 
@@ -4520,12 +4510,6 @@ GenerateCoinbaseCommitment(CBlock &block, const CBlockIndex *pindexPrev, const C
 bool
 ContextualCheckBlockHeader(const CBlockHeader &block, CValidationState &state, const Consensus::Params &consensusParams,
                            CBlockIndex *const pindexPrev, int64_t nAdjustedTime, bool isTestBlockValidity) {
-	// Zcoin - MTP
-    bool fBlockHasMTP = (block.nVersion & 4096) != 0 || (pindexPrev && consensusParams.nMTPSwitchTime == 0);
-
-    if (block.IsMTP() != fBlockHasMTP)
-		return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),strprintf("rejected nVersion=0x%08x block", block.nVersion));
-
 	// Check proof of work
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
         return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, "incorrect proof of work");

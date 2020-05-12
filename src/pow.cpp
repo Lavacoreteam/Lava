@@ -15,7 +15,6 @@
 #include "chainparams.h"
 #include "libzerocoin/bitcoin_bignum/bignum.h"
 #include "utilstrencodings.h"
-#include "crypto/MerkleTreeProof/mtp.h"
 #include "mtpstate.h"
 #include "fixed.h"
 
@@ -50,29 +49,8 @@ unsigned int GetNextWorkRequired(const CBlockIndex *pindexLast, const CBlockHead
         }
     }
 
-    // 9/29/2016 - Reset to Lyra2(2,block_height,256) due to ASIC KnC Miner Scrypt
-    // 36 block look back, reset to mininmum diff
-    if (params.IsMain() && pindexLast->nHeight + 1 >= HF_LYRA2VAR_HEIGHT && pindexLast->nHeight + 1 <= HF_LYRA2VAR_HEIGHT + 36 - 1) {
-        return params.nFixedDifficulty;
-    }
-    // 02/11/2017 - Increase diff to match with new hashrates of Lyra2Z algo
-    if (params.IsMain() && pindexLast->nHeight + 1 == HF_LYRA2Z_HEIGHT) {
-        CBigNum bnNew;
-        bnNew.SetCompact(pindexLast->nBits);
-        bnNew /= 20000; // increase the diff by 20000x since the new hashrate is approx. 20000 times higher
-        LogPrintf("Lyra2Z HF - Before: %08x %.8f\n", pindexLast->nBits, GetDifficultyHelper(pindexLast->nBits));
-        LogPrintf("Lyra2Z HF - After: %08x %.8f\n", bnNew.GetCompact(), GetDifficultyHelper(bnNew.GetCompact()));
-        if (bnNew > bnProofOfWorkLimit) { bnNew = bnProofOfWorkLimit; } // safe threshold
-        return bnNew.GetCompact();
-    }
-
     int nFirstMTPBlock = MTPState::GetMTPState()->GetFirstMTPBlockNumber(params, pindexLast);
     bool fMTP = nFirstMTPBlock > 0;
-
-    if (pblock->IsMTP() && !fMTP) {
-        // first MTP block ever
-        return params.nInitialMTPDifficulty;
-    }
 
     const uint32_t BlocksTargetSpacing = 
         (params.nMTPFiveMinutesStartBlock == 0 && fMTP) || (params.nMTPFiveMinutesStartBlock > 0 && pindexLast->nHeight >= params.nMTPFiveMinutesStartBlock) ?
@@ -122,24 +100,6 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex *pindexLast, int64_t nF
         bnNew = bnPowLimit;
 
     return bnNew.GetCompact();
-}
-
-// Zcoin - MTP
-bool CheckMerkleTreeProof(const CBlockHeader &block, const Consensus::Params &params) {
-    if (!block.IsMTP())
-	    return true;
-
-    if (!block.mtpHashData)
-        return false;
-
-    uint256 calculatedMtpHashValue;
-    bool isVerified = mtp::verify(block.nNonce, block, Params().GetConsensus().powLimit, &calculatedMtpHashValue) &&
-        block.mtpHashValue == calculatedMtpHashValue;
-
-    if(!isVerified)
-        return false;
-
-    return true;
 }
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params &params) {
