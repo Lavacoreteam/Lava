@@ -2055,7 +2055,7 @@ bool ReadBlockFromDisk(CBlock &block, const CDiskBlockPos &pos, int nHeight, con
     }
 
     // Check the header
-    if (!CheckProofOfWork(block.GetPoWHash(nHeight), block.nBits, consensusParams)){
+    if (block.IsProofOfWork() && !CheckProofOfWork(block.GetPoWHash(nHeight), block.nBits, consensusParams)){
         //Maybe cache is not valid
         if (!CheckProofOfWork(block.GetPoWHash(nHeight, true), block.nBits, consensusParams)){
             return error("ReadBlockFromDisk: CheckProofOfWork: Errors in block header at %s", pos.ToString());
@@ -4407,6 +4407,7 @@ bool CheckBlock(const CBlock &block, CValidationState &state,
         block.sigmaTxInfo = std::make_shared<sigma::CSigmaTxInfo>();
     LogPrintf("CheckBlock() nHeight=%s, blockHash= %s, isVerifyDB = %s\n",
               nHeight, block.GetHash().ToString(), isVerifyDB);
+    fCheckPOW = fCheckPOW && block.IsProofOfStake();
     try {
         // These are checks that are independent of context.
         if (block.fChecked)
