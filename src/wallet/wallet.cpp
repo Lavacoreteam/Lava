@@ -928,6 +928,15 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         }
 
         CBlock *pblock = &pblocktemplate->block;
+        CAmount FounderPay = GetFounderPaymentAmount(nHeight);
+        if (FounderPay > 1 * COIN) {
+            CScript FOUNDER_1_SCRIPT;
+            // Take some reward away from us
+            nReward -= FounderPay;
+            FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress("Lgv4yubXALZcPndex8f9BJJ4RxfAUR7pbh").Get());
+            // And give it to the founders
+            txNew.vout.push_back(CTxOut(FounderPay, CScript(FOUNDER_1_SCRIPT.begin(), FOUNDER_1_SCRIPT.end())));
+        }
         nCredit += nReward;
     }
     txNew.vout[1].nValue = nCredit;

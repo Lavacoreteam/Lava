@@ -101,7 +101,7 @@ public:
         //static const int64 nInterval = nTargetTimespan / nTargetSpacing;
         consensus.nPowTargetTimespan = 60 * 60; // 60 minutes between retargets
         consensus.nPowTargetSpacing = 1 * 60; // 1 minute blocks
-        consensus.nDgwPastBlocks = 150; // number of blocks to average in Dark Gravity Wave
+        consensus.nDgwPastBlocks = 20; // number of blocks to average in Dark Gravity Wave
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
@@ -244,7 +244,7 @@ public:
         consensus.nDandelionFluff = DANDELION_FLUFF;
 
         // Bip39
-        consensus.nMnemonicBlock = 222400;
+        consensus.nMnemonicBlock = 0;
     }
 };
 

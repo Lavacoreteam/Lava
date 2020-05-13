@@ -97,9 +97,10 @@ unsigned int DarkGravityWave(const CBlockIndex* pindexLast, const Consensus::Par
 unsigned int GetNextWorkRequired(const CBlockIndex *pindexLast, const CBlockHeader *pblock, const Consensus::Params &params,bool fProofOfStake) {
     assert(pindexLast != nullptr);
 
-    // Special rule for regtest: we never retarget.
-    if (params.fPowNoRetargeting) {
-        return pindexLast->nBits;
+    // Special rule for regtest: we never retarget.Also dont retarget on pow phase
+    if (params.fPowNoRetargeting || pindexLast->nHeight < params.nLastPOWBlock) {
+            const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
+        return pindexLast->nHeight > 1  ? bnPowLimit.GetCompact():pindexLast->nBits;
     }
 
     return DarkGravityWave(pindexLast, params,fProofOfStake);

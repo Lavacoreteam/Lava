@@ -2090,25 +2090,24 @@ bool ReadBlockHeaderFromDisk(CBlock &block, const CDiskBlockPos &pos) {
     return true;
 }
 
+CAmount GetFounderPaymentAmount(int nHeight){
+    CAmount nSubsidy = 0 * COIN;
+    if(nHeight == 15)
+        nSubsidy = 100000000 * COIN;//Add 100 mil for premine
+    else if (nHeight % 2880 == 0 && nHeight > 2 || nHeight ==133){
+        nSubsidy = 2808000 * COIN;//Founder superblock each 24hrs,calculated with 2880 * 975
+    }
+    return nSubsidy;
+}
+
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params &consensusParams, int nTime) {
     // Genesis block is 0 coin
     if (nHeight == 0)
         return 0;
 
-    // // Subsidy is cut in half after nSubsidyHalvingFirst block, then every nSubsidyHalvingInterval blocks.
-    // // After block nSubsidyHalvingStopBlock there will be no subsidy at all
-    // if (nHeight >= consensusParams.nSubsidyHalvingStopBlock)
-    //     return 0;
-    // int halvings = nHeight < consensusParams.nSubsidyHalvingFirst ? 0 : (nHeight - consensusParams.nSubsidyHalvingFirst) / consensusParams.nSubsidyHalvingInterval + 1;
-    // // Force block reward to zero when right shift is undefined.
-    // if (halvings >= 64)
-    //     return 0;
-
-    CAmount nSubsidy = 1500 * COIN;
-    // nSubsidy >>= halvings;
-
-    // if (nHeight > 0 && nTime >= (int)consensusParams.nMTPSwitchTime)
-    //     nSubsidy /= consensusParams.nMTPRewardReduction;
+    CAmount nSubsidy = 525 * COIN;
+    //Add Founder payment amount to block reward if needed
+    nSubsidy += GetFounderPaymentAmount(nHeight);
 
     return nSubsidy;
 }
@@ -4496,8 +4495,8 @@ bool CheckBlock(const CBlock &block, CValidationState &state,
         // Check transactions
         if (nHeight == INT_MAX)
             nHeight = ZerocoinGetNHeight(block.GetBlockHeader());
-
-        if (!CheckZerocoinFoundersInputs(block.vtx[0], state, Params().GetConsensus(), nHeight)) {
+        CTransaction genOutTx = block.IsProofOfStake() ? block.vtx[1]:block.vtx[0];
+        if (!CheckZerocoinFoundersInputs(genOutTx, state, Params().GetConsensus(), nHeight)) {
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(), "Founders' reward check failed");
         }
 
@@ -4795,12 +4794,6 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
 // novacoin: attempt to generate suitable proof-of-stake
 bool SignBlock(CBlock& block, CWallet& wallet, int64_t& nFees, CBlockTemplate *pblocktemplate)
 {
-    // if we are trying to sign
-    // something except proof-of-stake block template
-    if (!block.vtx[0].vout[0].IsEmpty()){
-        LogPrintf("something except proof-of-stake block\n");
-        return false;
-    }
 
     // if we are trying to sign
     // a complete proof-of-stake block
@@ -4962,7 +4955,7 @@ AcceptBlock(const CBlock &block, CValidationState &state, const CChainParams &ch
 //    LogPrintf("AcceptBlock() pindex->nHeight=%s\n", nHeight);
     // Check for the first proof of work block
     if (block.IsProofOfWork() && nHeight > chainparams.GetConsensus().nLastPOWBlock)
-        return state.DoS(100, error("%s: reject proof-of-stake at height %d",  __func__, nHeight),
+        return state.DoS(100, error("%s: reject proof-of-work at height %d",  __func__, nHeight),
                         REJECT_INVALID, "bad-pos-height");
     // Write block to history file
     try {
