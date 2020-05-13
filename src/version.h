@@ -48,7 +48,4 @@ static const int SHORT_IDS_BLOCKS_VERSION = 90013;
 //! not banning for invalid compact blocks starts with this version
 static const int INVALID_CB_NO_BAN_VERSION = 90013;
 
-//! minimum version of official client to connect to
-static const int MIN_ZCOIN_CLIENT_VERSION = 130808; // 0.13.8.8
-
 #endif // BITCOIN_VERSION_H

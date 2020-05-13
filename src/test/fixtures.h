@@ -41,17 +41,6 @@ struct ZerocoinTestingSetup109 : public ZerocoinTestingSetupBase {
         ZerocoinTestingSetup109();
 };
 
-struct MtpMalformedTestingSetup : public ZerocoinTestingSetupBase {
-        MtpMalformedTestingSetup();
-
-    CBlock CreateBlock(
-            const vector<uint256>& tx_ids,
-            const CScript&, bool);
-
-    CBlock CreateAndProcessBlock(
-        const vector<uint256>& tx_ids,
-        const CScript&, bool);
-};
 
 // for the duration of the test set network type to testnet
 class FakeTestnet {

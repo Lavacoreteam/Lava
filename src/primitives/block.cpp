@@ -48,11 +48,6 @@ uint256 CBlockHeader::GetHash() const {
     return SerializeHash(*this);
 }
 
-uint256 CBlockHeader::GetPoWHash(int nHeight, bool forceCalc) const {
-    //Use SHA256 For powhash
-    return GetHash();
-}
-
 std::string CBlock::ToString() const {
     std::stringstream s;
     s << strprintf(

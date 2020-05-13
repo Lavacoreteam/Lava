@@ -1177,7 +1177,7 @@ bool CheckTransaction(
     }
 
     if (tx.IsCoinBase()) {
-        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)
+        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 106)
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-length");
     } else {
 	    BOOST_FOREACH(const CTxIn &txin, tx.vin) {
@@ -2055,9 +2055,9 @@ bool ReadBlockFromDisk(CBlock &block, const CDiskBlockPos &pos, int nHeight, con
     }
 
     // Check the header
-    if (block.IsProofOfWork() && !CheckProofOfWork(block.GetPoWHash(nHeight), block.nBits, consensusParams)){
+    if (block.IsProofOfWork() && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams)){
         //Maybe cache is not valid
-        if (!CheckProofOfWork(block.GetPoWHash(nHeight, true), block.nBits, consensusParams)){
+        if (!CheckProofOfWork(block.GetHash(), block.nBits, consensusParams)){
             return error("ReadBlockFromDisk: CheckProofOfWork: Errors in block header at %s", pos.ToString());
         }
     }
@@ -2095,20 +2095,20 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params &consensusParams, i
     if (nHeight == 0)
         return 0;
 
-    // Subsidy is cut in half after nSubsidyHalvingFirst block, then every nSubsidyHalvingInterval blocks.
-    // After block nSubsidyHalvingStopBlock there will be no subsidy at all
-    if (nHeight >= consensusParams.nSubsidyHalvingStopBlock)
-        return 0;
-    int halvings = nHeight < consensusParams.nSubsidyHalvingFirst ? 0 : (nHeight - consensusParams.nSubsidyHalvingFirst) / consensusParams.nSubsidyHalvingInterval + 1;
-    // Force block reward to zero when right shift is undefined.
-    if (halvings >= 64)
-        return 0;
+    // // Subsidy is cut in half after nSubsidyHalvingFirst block, then every nSubsidyHalvingInterval blocks.
+    // // After block nSubsidyHalvingStopBlock there will be no subsidy at all
+    // if (nHeight >= consensusParams.nSubsidyHalvingStopBlock)
+    //     return 0;
+    // int halvings = nHeight < consensusParams.nSubsidyHalvingFirst ? 0 : (nHeight - consensusParams.nSubsidyHalvingFirst) / consensusParams.nSubsidyHalvingInterval + 1;
+    // // Force block reward to zero when right shift is undefined.
+    // if (halvings >= 64)
+    //     return 0;
 
-    CAmount nSubsidy = 50 * COIN;
-    nSubsidy >>= halvings;
+    CAmount nSubsidy = 1500 * COIN;
+    // nSubsidy >>= halvings;
 
-    if (nHeight > 0 && nTime >= (int)consensusParams.nMTPSwitchTime)
-        nSubsidy /= consensusParams.nMTPRewardReduction;
+    // if (nHeight > 0 && nTime >= (int)consensusParams.nMTPSwitchTime)
+    //     nSubsidy /= consensusParams.nMTPRewardReduction;
 
     return nSubsidy;
 }
@@ -2348,6 +2348,7 @@ namespace Consensus {
         // for an attacker to attempt to split the network.
         if (!inputs.HaveInputs(tx))
             return state.Invalid(false, 0, "", "Inputs unavailable");
+    const Consensus::Params& consensus = Params();
 
         CAmount nValueIn = 0;
         CAmount nFees = 0;
@@ -2355,13 +2356,13 @@ namespace Consensus {
             const COutPoint &prevout = tx.vin[i].prevout;
             const CCoins *coins = inputs.AccessCoins(prevout.hash);
             assert(coins);
-
-            // If prev is coinbase, check that it's matured
-            if (coins->IsCoinBase()) {
+            bool fCoinStake = coins->IsCoinStake();
+            // If prev is coinbase or coinstake, check that it's matured
+            if (coins->IsCoinBase() || fCoinStake) {
                 if (nSpendHeight - coins->nHeight < COINBASE_MATURITY)
                     return state.Invalid(false,
-                                         REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
-                                         strprintf("tried to spend coinbase at depth %d",
+                                         REJECT_INVALID, fCoinStake ? "bad-txns-premature-spend-of-coinstake":"bad-txns-premature-spend-of-coinbase",
+                                         strprintf(fCoinStake ? "tried to spend coinstake at depth %d":"tried to spend coinbase at depth %d",
                                                    nSpendHeight - coins->nHeight));
             }
 
@@ -2372,18 +2373,27 @@ namespace Consensus {
 
         }
 
-        if (nValueIn < tx.GetValueOut())
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
-                             strprintf("value in (%s) < value out (%s)", FormatMoney(nValueIn),
-                                       FormatMoney(tx.GetValueOut())));
+            if (!tx.IsCoinStake() && nValueIn < tx.GetValueOut())
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
+                                 strprintf("value in (%s) < value out (%s)", FormatMoney(nValueIn),
+                                           FormatMoney(tx.GetValueOut())));
+            // Tally transaction fees
+            CAmount nTxFee = tx.IsCoinStake() ? tx.GetValueOut() - nValueIn : nValueIn - tx.GetValueOut();
+            bool fCoinstakematchesReward = tx.IsCoinStake() && nTxFee == GetBlockSubsidy(nSpendHeight,consensus,GetAdjustedTime());
+            if(!fCoinstakematchesReward && tx.IsCoinStake()){
+                LogPrintf("Stakeout is %d\n",nTxFee/COIN);
+                LogPrintf("SpendHeight  is %d\n",nSpendHeight);
+                LogPrintf("Expected stakeout  is %d\n",GetBlockSubsidy(nSpendHeight,consensus,GetAdjustedTime())/COIN);
+                return state.DoS(100, false, REJECT_INVALID, "bad-coinstake-toohigh");
 
-        // Tally transaction fees
-        CAmount nTxFee = nValueIn - tx.GetValueOut();
-        if (nTxFee < 0)
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-negative");
-        nFees += nTxFee;
-        if (!MoneyRange(nFees))
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
+            }
+            if(nTxFee < 0)
+                LogPrintf("Fee is %d\n",nTxFee);
+            if (nTxFee < 0)
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-negative");
+            nFees += nTxFee;
+            if (!MoneyRange(nFees))
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
         return true;
     }
 }// namespace Consensus
@@ -4388,9 +4398,9 @@ static bool CheckBlockSignature(const CBlock& block)
 //btzc: code from vertcoin, add
 bool CheckBlockHeader(const CBlockHeader &block, CValidationState &state, const Consensus::Params &consensusParams, bool fCheckPOW) {
     int nHeight = ZerocoinGetNHeight(block);
-    if (fCheckPOW && !CheckProofOfWork(block.GetPoWHash(nHeight), block.nBits, consensusParams)) {
+    if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams)) {
         //Maybe cache is not valid
-        if (fCheckPOW && !CheckProofOfWork(block.GetPoWHash(nHeight, true), block.nBits, consensusParams)) {
+        if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams)) {
             return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
         }
     }
@@ -4407,7 +4417,7 @@ bool CheckBlock(const CBlock &block, CValidationState &state,
         block.sigmaTxInfo = std::make_shared<sigma::CSigmaTxInfo>();
     LogPrintf("CheckBlock() nHeight=%s, blockHash= %s, isVerifyDB = %s\n",
               nHeight, block.GetHash().ToString(), isVerifyDB);
-    fCheckPOW = fCheckPOW && block.IsProofOfStake();
+    fCheckPOW = fCheckPOW && block.IsProofOfWork();
     try {
         // These are checks that are independent of context.
         if (block.fChecked)
@@ -6401,22 +6411,6 @@ bool static ProcessMessage(CNode *pfrom, string strCommand,
             pfrom->nVersion = 300;
         if (!vRecv.empty())
             vRecv >> addrFrom >> nNonce;
-        if (!vRecv.empty()) {
-            vRecv >> LIMITED_STRING(pfrom->strSubVer, MAX_SUBVERSION_LENGTH);
-            pfrom->cleanSubVer = SanitizeString(pfrom->strSubVer);
-            int parsedVersion[4];
-            if (sscanf(pfrom->cleanSubVer.c_str(), "/Satoshi:%2d.%2d.%2d.%2d/",
-                    &parsedVersion[0], &parsedVersion[1], &parsedVersion[2], &parsedVersion[3]) == 4) {
-                int peerClientVersion = parsedVersion[0]*1000000 + parsedVersion[1]*10000 + parsedVersion[2]*100 + parsedVersion[3];
-                if (peerClientVersion < MIN_ZCOIN_CLIENT_VERSION) {
-                    pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_OBSOLETE, "This version is banned from the network");
-                    pfrom->fDisconnect = 1;
-                    LOCK(cs_main);
-                    Misbehaving(pfrom->GetId(), 100);
-                    return false;
-                }
-            }
-        }
         if (!vRecv.empty()) {
             vRecv >> pfrom->nStartingHeight;
         }

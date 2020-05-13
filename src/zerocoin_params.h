@@ -27,54 +27,54 @@ static const int64_t DUST_HARD_LIMIT = 1000;   // 0.00001 XZC mininput
 #define ZC_V2_TESTNET_SWITCH_ID_50 4
 #define ZC_V2_TESTNET_SWITCH_ID_100 10
 
-#define ZC_V1_5_STARTING_BLOCK          78500
-#define ZC_V1_5_TESTNET_STARTING_BLOCK  37954
+#define ZC_V1_5_STARTING_BLOCK          0
+#define ZC_V1_5_TESTNET_STARTING_BLOCK  0
 
-#define ZC_V1_5_GRACEFUL_MEMPOOL_PERIOD	500
-#define ZC_V1_5_GRACEFUL_PERIOD			1500
+#define ZC_V1_5_GRACEFUL_MEMPOOL_PERIOD	0
+#define ZC_V1_5_GRACEFUL_PERIOD			0
 
 // Block after which sigma mints are activated.
-#define ZC_SIGMA_STARTING_BLOCK         184200 //Approx July 30th, 2019, 8:00 AM UTC
-#define ZC_SIGMA_TESTNET_STARTING_BLOCK 50000
+#define ZC_SIGMA_STARTING_BLOCK         0 //Approx July 30th, 2019, 8:00 AM UTC
+#define ZC_SIGMA_TESTNET_STARTING_BLOCK 0
 
 // Block after which anonymity sets are being padded.
-#define ZC_SIGMA_PADDING_BLOCK         220720 //Approx December 5th 12PM UTC
-#define ZC_SIGMA_TESTNET_PADDING_BLOCK 110000
+#define ZC_SIGMA_PADDING_BLOCK         0 //Approx December 5th 12PM UTC
+#define ZC_SIGMA_TESTNET_PADDING_BLOCK 0
 
 //Block after whinch we are disabling sigma to enable after starting padding
-#define ZC_SIGMA_DISABLE_UNPADDED_BLOCK         219904 //December 2nd 12PM UTC
-#define ZC_SIGMA_TESTNET_DISABLE_UNPADDED_BLOCK 109160
+#define ZC_SIGMA_DISABLE_UNPADDED_BLOCK         0 //December 2nd 12PM UTC
+#define ZC_SIGMA_TESTNET_DISABLE_UNPADDED_BLOCK 0
 
 // The block number after which old sigma clients are banned.
-#define ZC_OLD_SIGMA_BAN_BLOCK          181850 //Approx July 22nd, 2019, 4:00 AM UTC
+#define ZC_OLD_SIGMA_BAN_BLOCK          0 //Approx July 22nd, 2019, 4:00 AM UTC
 
 // Number of blocks after ZC_SIGMA_STARTING_BLOCK during which we still accept zerocoin V2 mints into mempool.
-#define ZC_V2_MINT_GRACEFUL_MEMPOOL_PERIOD          4500
-#define ZC_V2_MINT_TESTNET_GRACEFUL_MEMPOOL_PERIOD  500
+#define ZC_V2_MINT_GRACEFUL_MEMPOOL_PERIOD          0
+#define ZC_V2_MINT_TESTNET_GRACEFUL_MEMPOOL_PERIOD  0
 
 // Number of blocks after ZC_SIGMA_STARTING_BLOCK during which we still accept zerocoin V2 mints to newly mined blocks.
-#define ZC_V2_MINT_GRACEFUL_PERIOD          5000
+#define ZC_V2_MINT_GRACEFUL_PERIOD          0
 #define ZC_V2_MINT_TESTNET_GRACEFUL_PERIOD  1000
 
 // Number of blocks after ZC_SIGMA_STARTING_BLOCK during which we still accept zerocoin V2 spends into mempool.
-#define ZC_V2_SPEND_GRACEFUL_MEMPOOL_PERIOD         9000
-#define ZC_V2_SPEND_TESTNET_GRACEFUL_MEMPOOL_PERIOD 1500
+#define ZC_V2_SPEND_GRACEFUL_MEMPOOL_PERIOD         0
+#define ZC_V2_SPEND_TESTNET_GRACEFUL_MEMPOOL_PERIOD 0
 
 // Number of blocks after ZC_SIGMA_STARTING_BLOCK during which we still accept zerocoin V2 spends to newly mined blocks.
-#define ZC_V2_SPEND_GRACEFUL_PERIOD         10000
-#define ZC_V2_SPEND_TESTNET_GRACEFUL_PERIOD 2000
+#define ZC_V2_SPEND_GRACEFUL_PERIOD         0
+#define ZC_V2_SPEND_TESTNET_GRACEFUL_PERIOD 0
 
-#define ZC_MODULUS_V2_START_BLOCK		89300
-#define ZC_MODULUS_V1_MEMPOOL_STOP_BLOCK        89500
-#define ZC_MODULUS_V1_STOP_BLOCK		89800
+#define ZC_MODULUS_V2_START_BLOCK		0
+#define ZC_MODULUS_V1_MEMPOOL_STOP_BLOCK        0
+#define ZC_MODULUS_V1_STOP_BLOCK		0
 
-#define ZC_MODULUS_V2_TESTNET_START_BLOCK       87000
-#define ZC_MODULUS_V1_TESTNET_MEMPOOL_STOP_BLOCK 87500
-#define ZC_MODULUS_V1_TESTNET_STOP_BLOCK        88000
+#define ZC_MODULUS_V2_TESTNET_START_BLOCK       0
+#define ZC_MODULUS_V1_TESTNET_MEMPOOL_STOP_BLOCK 0
+#define ZC_MODULUS_V1_TESTNET_STOP_BLOCK        0
 
-#define ZC_MODULUS_V2_BASE_ID			1000
+#define ZC_MODULUS_V2_BASE_ID			0
 
-#define ZC_MULTIPLE_SPEND_INPUT_STARTING_BLOCK  119000
+#define ZC_MULTIPLE_SPEND_INPUT_STARTING_BLOCK  0
 
 // Number of coins per id in spend v1/v1.5
 #define ZC_SPEND_V1_COINSPERID			10
@@ -94,28 +94,28 @@ static const int64_t DUST_HARD_LIMIT = 1000;   // 0.00001 XZC mininput
 #define ZC_MINT_CONFIRMATIONS               6
 
 // Genesis block timestamp
-#define ZC_GENESIS_BLOCK_TIME               1414776286
+#define ZC_GENESIS_BLOCK_TIME               1543578342
 
 #define SWITCH_TO_MTP_BLOCK_HEADER 1544443200 // 2018 December 10th 12:00 UTC
 #define SWITCH_TO_MTP_5MIN_BLOCK            118600
 
 // Number of zerocoin spends allowed per block and per transaction
-#define ZC_SPEND_LIMIT         5
+#define ZC_SPEND_LIMIT         100
 
 // Value of sigma spends allowed per block
-#define ZC_SIGMA_VALUE_SPEND_LIMIT_PER_BLOCK  (600 * COIN)
+#define ZC_SIGMA_VALUE_SPEND_LIMIT_PER_BLOCK  (60000 * COIN)
 
 // Amount of sigma spends allowed per block
-#define ZC_SIGMA_INPUT_LIMIT_PER_BLOCK         50
+#define ZC_SIGMA_INPUT_LIMIT_PER_BLOCK         500
 
 // Value of sigma spends allowed per transaction
-#define ZC_SIGMA_VALUE_SPEND_LIMIT_PER_TRANSACTION     (500 * COIN)
+#define ZC_SIGMA_VALUE_SPEND_LIMIT_PER_TRANSACTION     (100000 * COIN)
 
 // Amount of sigma spends allowed per transaction
-#define ZC_SIGMA_INPUT_LIMIT_PER_TRANSACTION            35
+#define ZC_SIGMA_INPUT_LIMIT_PER_TRANSACTION            80
 
 // Number of zerocoin mints allowed per transaction
-#define ZC_MINT_LIMIT         100
+#define ZC_MINT_LIMIT         600
 
 /** Maximum number of outbound peers designated as Dandelion destinations */
 #define DANDELION_MAX_DESTINATIONS 2

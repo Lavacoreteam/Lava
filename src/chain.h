@@ -326,7 +326,7 @@ public:
 
     uint256 GetBlockPoWHash(bool forceCalc = false) const
     {
-        return GetBlockHeader().GetPoWHash(nHeight, forceCalc);
+        return GetBlockHeader().GetHash();
     }
 
     int64_t GetBlockTime() const
@@ -455,7 +455,8 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
-        READWRITE(vchBlockSig); // qtum
+        if(nNonce == 0)
+            READWRITE(vchBlockSig); // qtum
 
         if (!(nType & SER_GETHASH) && nVersion >= ZC_ADVANCED_INDEX_VERSION) {
             READWRITE(mintedPubCoins);

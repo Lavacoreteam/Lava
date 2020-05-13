@@ -539,6 +539,7 @@ bool CheckMintZcoinTransaction(const CTxOut &txout,
 }
 
 bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state, const Consensus::Params &params, int nHeight) {
+    /*
     // Check for founders inputs
     if ((nHeight > params.nCheckBugFixedAtBlock) && (nHeight < params.nSubsidyHalvingFirst)) {
         // Reduce everything by a factor of two when MTP is in place
@@ -606,7 +607,7 @@ bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state
                              "CTransaction::CheckTransaction() : founders reward missing");
         }
     }
-
+*/
     return true;
 }
 
