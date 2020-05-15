@@ -183,6 +183,7 @@ struct Params {
     bool IsMain() const { return chainType == chainMain; }
     bool IsTestnet() const { return chainType == chainTestnet; }
     bool IsRegtest() const { return chainType == chainRegtest; }
+    std::string FounderAddress;
 };
 } // namespace Consensus
 

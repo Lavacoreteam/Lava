@@ -152,6 +152,7 @@ public:
         consensus.nDisableZerocoinStartBlock = 157000;
         consensus.nLastPOWBlock = 131;
         consensus.nStakeTimestampMask = 0xf; // 15
+        consensus.FounderAddress = "Lgv4yubXALZcPndex8f9BJJ4RxfAUR7pbh";
         nMaxTipAge = 6 * 60 * 60; // ~144 blocks behind -> 2 x fork detection time, was 24 * 60 * 60 in bitcoin
 
         nPoolMaxTransactions = 3;

@@ -544,7 +544,7 @@ bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state
         bool found_1 = false;//Default founder payment check to true if there is no payment needed at this blockheight
         if(FounderPay > 1 * COIN){
             CScript FOUNDER_1_SCRIPT;
-            FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress("Lgv4yubXALZcPndex8f9BJJ4RxfAUR7pbh").Get());
+            FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());
             BOOST_FOREACH(const CTxOut &output, tx.vout) {
                 if (output.scriptPubKey == FOUNDER_1_SCRIPT && output.nValue == (FounderPay)) {
                     found_1 = true;
