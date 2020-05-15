@@ -136,7 +136,7 @@ CPubKey CWallet::GetKeyFromKeypath(uint32_t nChange, uint32_t nChild) {
 
     boost::optional<bool> regTest = GetOptBoolArg("-regtest")
     , testNet = GetOptBoolArg("-testnet");
-    uint32_t nIndex = (regTest || testNet) ? BIP44_TEST_INDEX : BIP44_ZCOIN_INDEX;
+    uint32_t nIndex = (regTest || testNet) ? BIP44_TEST_INDEX : BIP44_LAVA_INDEX;
 
     // Fail if not using HD wallet (no keypaths)
     if (hdChain.masterKeyID.IsNull())
@@ -202,7 +202,7 @@ CPubKey CWallet::GenerateNewKey(uint32_t nChange) {
     boost::optional<bool> regTest = GetOptBoolArg("-regtest")
     , testNet = GetOptBoolArg("-testnet");
 
-    uint32_t nIndex = (regTest || testNet) ? BIP44_TEST_INDEX : BIP44_ZCOIN_INDEX;
+    uint32_t nIndex = (regTest || testNet) ? BIP44_TEST_INDEX : BIP44_LAVA_INDEX;
 
     // use HD key derivation if HD was enabled during wallet creation
     if (!hdChain.masterKeyID.IsNull()) {
