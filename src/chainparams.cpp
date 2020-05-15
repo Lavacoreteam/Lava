@@ -187,7 +187,11 @@ public:
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x0000009a9e9e2d1f034fa6ba488d23f3788bb9b11e8f7da911bbc8502251305b"));
         assert(genesis.hashMerkleRoot == uint256S("e1447bdd627f6bc4e648ed385c41df9d0f2c1923daa521291b2ff3c19f645e52"));
-        // vSeeds.push_back(CDNSSeedData("mineit.io", "mineit.io", false));
+        vSeeds.push_back(CDNSSeedData("lavaseeder.mineit.io", "lavaseeder.mineit.io", false));
+        vSeeds.push_back(CDNSSeedData("Seed1", "80.240.27.4", false));
+        vSeeds.push_back(CDNSSeedData("Seed2", "95.179.171.245", false));
+        vSeeds.push_back(CDNSSeedData("Seed3", "45.32.153.148", false));
+
         // Note that of those with the service bits flag, most only support a subset of possible options
         base58Prefixes[PUBKEY_ADDRESS] = std::vector < unsigned char > (1, 48);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector < unsigned char > (1, 7);
