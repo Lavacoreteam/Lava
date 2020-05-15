@@ -124,7 +124,7 @@
     </message>
 </context>
 <context>
-    <name>ZcoinGUI</name>
+    <name>LavaGUI</name>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Usklađivanje sa mrežom...</translation>
@@ -158,16 +158,16 @@
         <translation>Otvori &amp;URI...</translation>
     </message>
     <message>
-        <source>Send coins to a Zcoin address</source>
-        <translation>Pošalji novčiće na Zcoin adresu</translation>
+        <source>Send coins to a Lava address</source>
+        <translation>Pošalji novčiće na Lava adresu</translation>
     </message>
     <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;Proveri poruku...</translation>
     </message>
     <message>
-        <source>Zcoin</source>
-        <translation>Zcoin</translation>
+        <source>Lava</source>
+        <translation>Lava</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -410,10 +410,10 @@
     <name>WalletView</name>
     </context>
 <context>
-    <name>zcoin-core</name>
+    <name>lava-core</name>
     <message>
-        <source>Zcoin Core</source>
-        <translation>Zcoin Core</translation>
+        <source>Lava Core</source>
+        <translation>Lava Core</translation>
     </message>
     <message>
         <source>Information</source>

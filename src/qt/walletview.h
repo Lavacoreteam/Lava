@@ -101,7 +101,7 @@ private:
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
     QWidget *sendCoinsPage;
-    SendCoinsDialog *sendZcoinView;
+    SendCoinsDialog *sendLavaView;
     TradeHistoryDialog *tradeHistoryTab;
     MetaDExDialog *metaDExTab;
     MetaDExCancelDialog *cancelTab;
@@ -110,8 +110,8 @@ private:
     BlankSigmaDialog *blankSigmaView;
     QWidget *sigmaPage;
     Zc2SigmaPage *zc2SigmaPage;
-    TransactionView *zcoinTransactionList;
-    QWidget *zcoinTransactionsView;
+    TransactionView *lavaTransactionList;
+    QWidget *lavaTransactionsView;
 
     QProgressDialog *progressDialog;
     const PlatformStyle *platformStyle;

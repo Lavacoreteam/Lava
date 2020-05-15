@@ -146,7 +146,7 @@ CPubKey CWallet::GetKeyFromKeypath(uint32_t nChange, uint32_t nChild) {
     CKey key;                      //master key seed (256bit)
     CExtKey masterKey;             //hd master key
     CExtKey purposeKey;            //key at m/44'
-    CExtKey coinTypeKey;           //key at m/44'/<1/136>' (Testnet or Zcoin Coin Type respectively, according to SLIP-0044)
+    CExtKey coinTypeKey;           //key at m/44'/<1/136>' (Testnet or Lava Coin Type respectively, according to SLIP-0044)
     CExtKey accountKey;            //key at m/44'/<1/136>'/0'
     CExtKey externalChainChildKey; //key at m/44'/<1/136>'/0'/<c> (Standard: 0/1, Mints: 2)
     CExtKey childKey;              //key at m/44'/<1/136>'/0'/<c>/<n>
@@ -210,7 +210,7 @@ CPubKey CWallet::GenerateNewKey(uint32_t nChange) {
         CKey key;                      //master key seed (256bit)
         CExtKey masterKey;             //hd master key
         CExtKey purposeKey;            //key at m/44'
-        CExtKey coinTypeKey;           //key at m/44'/<1/136>' (Testnet or Zcoin Coin Type respectively, according to SLIP-0044)
+        CExtKey coinTypeKey;           //key at m/44'/<1/136>' (Testnet or Lava Coin Type respectively, according to SLIP-0044)
         CExtKey accountKey;            //key at m/44'/<1/136>'/0'
         CExtKey externalChainChildKey; //key at m/44'/<1/136>'/0'/<c> (Standard: 0/1, Mints: 2)
         CExtKey childKey;              //key at m/44'/<1/136>'/0'/<c>/<n>
@@ -2008,7 +2008,7 @@ int CWallet::ScanForWalletTransactions(CBlockIndex *pindexStart, bool fUpdate, b
 
         // no need to read and scan block, if block was created before
         // our wallet birthday (as adjusted for block time variability)
-        // if you are recovering wallet with mnemonics start rescan from block when mnemonics implemented in Zcoin
+        // if you are recovering wallet with mnemonics start rescan from block when mnemonics implemented in Lava
         if (fRecoverMnemonic) {
             pindex = chainActive[chainParams.GetConsensus().nMnemonicBlock];
             if (pindex == NULL)
@@ -2660,7 +2660,7 @@ bool CWallet::GetCoinsToSpend(
     // Sanity check to make sure this function is never called with a too large
     // amount to spend, resulting to a possible crash due to out of memory condition.
     if (!MoneyRange(required)) {
-        throw std::invalid_argument("Request to spend more than 21 MLN zcoins.\n");
+        throw std::invalid_argument("Request to spend more than 21 MLN lavas.\n");
     }
 
     if (!MoneyRange(amountToSpendLimit)) {
@@ -2907,7 +2907,7 @@ void CWallet::AvailableCoins(vector <COutput> &vCoins, bool fOnlyConfirmed, cons
     }
 }
 
-//[zcoin]
+//[lava]
 void CWallet::ListAvailableCoinsMintCoins(vector <COutput> &vCoins, bool fOnlyConfirmed) const {
     vCoins.clear();
     {
@@ -3863,7 +3863,7 @@ bool CWallet::CreateSigmaMintModel(
         int64_t denominationValue;
         if (!DenominationToInteger(denomination, denominationValue)) {
             throw runtime_error(
-                "mintzerocoin <amount>(0.1, 0.5, 1, 10, 100) (\"zcoinaddress\")\n");
+                "mintzerocoin <amount>(0.1, 0.5, 1, 10, 100) (\"lavaaddress\")\n");
         }
 
         int64_t coinCount = denominationPair.second;
@@ -3872,7 +3872,7 @@ bool CWallet::CreateSigmaMintModel(
             denominationValue, coinCount);
 
         if(coinCount < 0) {
-            throw runtime_error("Coin count negative (\"zcoinaddress\")\n");
+            throw runtime_error("Coin count negative (\"lavaaddress\")\n");
         }
 
         sigma::Params* sigmaParams = sigma::Params::get_default();
@@ -3990,7 +3990,7 @@ bool CWallet::CreateZerocoinMintModelV2(
                 break;
             default:
                 throw runtime_error(
-                    "mintzerocoin <amount>(1,10,25,50,100) (\"zcoinaddress\")\n");
+                    "mintzerocoin <amount>(1,10,25,50,100) (\"lavaaddress\")\n");
         }
 
         int64_t amount = denominationPair.second;
@@ -3999,7 +3999,7 @@ bool CWallet::CreateZerocoinMintModelV2(
 
         if(amount < 0){
                 throw runtime_error(
-                    "mintzerocoin <amount>(1,10,25,50,100) (\"zcoinaddress\")\n");
+                    "mintzerocoin <amount>(1,10,25,50,100) (\"lavaaddress\")\n");
         }
 
         for(int64_t i=0; i<amount; i++){
@@ -4959,7 +4959,7 @@ bool CWallet::CreateZerocoinMintTransaction(const vector <CRecipient> &vecSend, 
 //                }
                 } else{
                     int64_t nPayFee = payTxFee.GetFeePerK() * (1 + (int64_t) GetTransactionWeight(txNew) / 1000);
-                    //                bool fAllowFree = false;                                 // No free TXs in XZC
+                    //                bool fAllowFree = false;                                 // No free TXs in LAVA
                     int64_t nMinFee = wtxNew.GetMinFee(1, false, GMF_SEND);
                     nFeeNeeded = nPayFee;
                     if (nFeeNeeded < nMinFee) {
@@ -5053,10 +5053,10 @@ bool CWallet::CreateZerocoinSpendTransaction(std::string &thirdPartyaddress, int
 
                 CBitcoinAddress address(thirdPartyaddress);
                 if (!address.IsValid()){
-                    strFailReason = _("Invalid Zcoin address");
+                    strFailReason = _("Invalid Lava address");
                     return false;
                 }
-                // Parse Zcoin address
+                // Parse Lava address
                 scriptChange = GetScriptForDestination(CBitcoinAddress(thirdPartyaddress).Get());
             }
 
@@ -5300,10 +5300,10 @@ bool CWallet::CreateSigmaSpendTransaction(
             } else {
                 CBitcoinAddress address(thirdPartyaddress);
                 if (!address.IsValid()){
-                    strFailReason = _("Invalid Zcoin address");
+                    strFailReason = _("Invalid Lava address");
                     return false;
                 }
-                // Parse Zcoin address
+                // Parse Lava address
                 scriptChange = GetScriptForDestination(CBitcoinAddress(thirdPartyaddress).Get());
             }
 
@@ -5587,10 +5587,10 @@ bool CWallet::CreateMultipleZerocoinSpendTransaction(std::string &thirdPartyaddr
             }else{
                  CBitcoinAddress address(thirdPartyaddress);
                 if (!address.IsValid()){
-                    strFailReason = _("Invalid Zcoin address");
+                    strFailReason = _("Invalid Lava address");
                     return false;
                 }
-                // Parse Zcoin address
+                // Parse Lava address
                 scriptChange = GetScriptForDestination(CBitcoinAddress(thirdPartyaddress).Get());
             }
 
@@ -5909,10 +5909,10 @@ bool CWallet::CreateMultipleSigmaSpendTransaction(
             }else{
                 CBitcoinAddress address(thirdPartyaddress);
                 if (!address.IsValid()) {
-                    strFailReason = _("Invalid Zcoin address");
+                    strFailReason = _("Invalid Lava address");
                     return false;
                 }
-                // Parse Zcoin address
+                // Parse Lava address
                 scriptChange = GetScriptForDestination(CBitcoinAddress(thirdPartyaddress).Get());
             }
 
@@ -8262,7 +8262,7 @@ bool CMerkleTx::AcceptToMemoryPool(
         CValidationState &state,
         bool fCheckInputs,
         bool isCheckWalletTransaction,
-        bool markZcoinSpendTransactionSerial) {
+        bool markLavaSpendTransactionSerial) {
     LogPrintf("CMerkleTx::AcceptToMemoryPool(), transaction %s, fCheckInputs=%s\n",
               GetHash().ToString(),
               fCheckInputs);
@@ -8277,7 +8277,7 @@ bool CMerkleTx::AcceptToMemoryPool(
             false, /* fOverrideMempoolLimit */
             nAbsurdFee,
             isCheckWalletTransaction,
-            false /* markZcoinSpendTransactionSerial */
+            false /* markLavaSpendTransactionSerial */
         );
         if (!res) {
             LogPrintf(
@@ -8299,7 +8299,7 @@ bool CMerkleTx::AcceptToMemoryPool(
             false, /* fOverrideMempoolLimit */
             nAbsurdFee,
             isCheckWalletTransaction,
-            false /* markZcoinSpendTransactionSerial */
+            false /* markLavaSpendTransactionSerial */
         );
         return ::AcceptToMemoryPool(
             mempool,
@@ -8311,7 +8311,7 @@ bool CMerkleTx::AcceptToMemoryPool(
             false, /* fOverrideMempoolLimit */
             nAbsurdFee,
             isCheckWalletTransaction,
-            markZcoinSpendTransactionSerial);
+            markLavaSpendTransactionSerial);
     }
 }
 

@@ -48,8 +48,8 @@ private:
     //! amount of ELYSIUM for sale specified when the offer was placed
     int64_t offer_amount_original;
     uint32_t property;
-    //! amount desired, in XZC
-    int64_t XZC_desired_original;
+    //! amount desired, in LAVA
+    int64_t LAVA_desired_original;
     int64_t min_fee;
     uint8_t blocktimelimit;
     uint256 txid;
@@ -63,10 +63,10 @@ public:
     uint8_t getSubaction() const { return subaction; }
 
     int64_t getOfferAmountOriginal() const { return offer_amount_original; }
-    int64_t getXZCDesiredOriginal() const { return XZC_desired_original; }
+    int64_t getLAVADesiredOriginal() const { return LAVA_desired_original; }
 
     CMPOffer()
-      : offerBlock(0), offer_amount_original(0), property(0), XZC_desired_original(0), min_fee(0),
+      : offerBlock(0), offer_amount_original(0), property(0), LAVA_desired_original(0), min_fee(0),
         blocktimelimit(0), subaction(0)
     {
     }
@@ -74,7 +74,7 @@ public:
     CMPOffer(int block, int64_t amountOffered, uint32_t propertyId, int64_t amountDesired,
              int64_t minAcceptFee, uint8_t paymentWindow, const uint256& tx)
       : offerBlock(block), offer_amount_original(amountOffered), property(propertyId),
-        XZC_desired_original(amountDesired), min_fee(minAcceptFee), blocktimelimit(paymentWindow),
+        LAVA_desired_original(amountDesired), min_fee(minAcceptFee), blocktimelimit(paymentWindow),
         txid(tx), subaction(0)
     {
         if (elysium_debug_dex) PrintToLog("%s(%d): %s\n", __func__, amountOffered, txid.GetHex());
@@ -82,7 +82,7 @@ public:
 
     CMPOffer(const CMPTransaction& tx)
       : offerBlock(tx.block), offer_amount_original(tx.nValue), property(tx.property),
-        XZC_desired_original(tx.amount_desired), min_fee(tx.min_fee),
+        LAVA_desired_original(tx.amount_desired), min_fee(tx.min_fee),
         blocktimelimit(tx.blocktimelimit), subaction(tx.subaction)
     {
     }
@@ -94,8 +94,8 @@ public:
                 offerBlock,
                 offer_amount_original,
                 property,
-                XZC_desired_original,
-                (ELYSIUM_PROPERTY_XZC),
+                LAVA_desired_original,
+                (ELYSIUM_PROPERTY_LAVA),
                 min_fee,
                 blocktimelimit,
                 txid.ToString()
@@ -123,7 +123,7 @@ private:
     uint32_t property;                 // copied from the offer during creation
 
     int64_t offer_amount_original;     // copied from the Offer during Accept's creation
-    int64_t XZC_desired_original;      // copied from the Offer during Accept's creation
+    int64_t LAVA_desired_original;      // copied from the Offer during Accept's creation
 
     // the original offers TXIDs, needed to match Accept to the Offer during Accept's destruction, etc.
     uint256 offer_txid;
@@ -134,7 +134,7 @@ public:
     uint256 getHash() const { return offer_txid; }
 
     int64_t getOfferAmountOriginal() const { return offer_amount_original; }
-    int64_t getXZCDesiredOriginal() const { return XZC_desired_original; }
+    int64_t getLAVADesiredOriginal() const { return LAVA_desired_original; }
 
     int64_t getAcceptAmount() const { return accept_amount_original; }
 
@@ -147,7 +147,7 @@ public:
               int64_t offerAmountOriginal, int64_t amountDesired, const uint256& txid)
       : accept_amount_remaining(amountAccepted), blocktimelimit(paymentWindow),
         property(propertyId), offer_amount_original(offerAmountOriginal),
-        XZC_desired_original(amountDesired), offer_txid(txid), block(blockIn)
+        LAVA_desired_original(amountDesired), offer_txid(txid), block(blockIn)
     {
         accept_amount_original = accept_amount_remaining;
         PrintToLog("%s(%d): %s\n", __func__, amountAccepted, txid.GetHex());
@@ -159,7 +159,7 @@ public:
       : accept_amount_original(acceptAmountOriginal),
         accept_amount_remaining(acceptAmountRemaining), blocktimelimit(paymentWindow),
         property(propertyId), offer_amount_original(offerAmountOriginal),
-        XZC_desired_original(amountDesired), offer_txid(txid), block(blockIn)
+        LAVA_desired_original(amountDesired), offer_txid(txid), block(blockIn)
     {
         PrintToLog("%s(%d[%d]): %s\n", __func__, acceptAmountRemaining, acceptAmountOriginal, txid.GetHex());
     }
@@ -206,7 +206,7 @@ public:
                 accept_amount_original,
                 blocktimelimit,
                 offer_amount_original,
-                XZC_desired_original,
+                LAVA_desired_original,
                 offer_txid.ToString());
 
         // add the line to the hash

@@ -37,8 +37,8 @@ const std::string ElysiumVersion()
     }
 }
 
-//! Returns formatted Zcoin Core version, e.g. "0.10", "0.9.3"
-const std::string ZcoinCoreVersion()
+//! Returns formatted Lava Core version, e.g. "0.10", "0.9.3"
+const std::string LavaCoreVersion()
 {
     if (CLIENT_VERSION_BUILD) {
         return strprintf("%d.%d.%d.%d",

@@ -62,7 +62,7 @@ static CBlock CreateGenesisBlock(const char *pszTimestamp, const CScript &genesi
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount &genesisReward,
         std::vector<unsigned char> extraNonce) {
     //    const char* pszTimestamp = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
-    //btzc: zcoin timestamp
+    //btzc: lava timestamp
     const char *pszTimestamp = "BBC News 13/March/2020 India coronavirus: PM Narendra Modi outlines economic rescue package";
     const CScript genesisOutputScript = CScript();
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward,
@@ -162,7 +162,7 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
        `  * a large 32-bit integer with any alignment.
          */
-        //btzc: update zcoin pchMessage
+        //btzc: update lava pchMessage
         pchMessageStart[0] = 0xe3;
         pchMessageStart[1] = 0xd9;
         pchMessageStart[2] = 0xfe;
@@ -170,7 +170,7 @@ public:
         nDefaultPort = 8168;
         nPruneAfterHeight = 100000;
         /**
-         * btzc: zcoin init genesis block
+         * btzc: lava init genesis block
          * nBits = 0x1e0ffff0
          * nTime = 1414776286
          * nNonce = 142392
@@ -354,14 +354,14 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        // zcoin test seeds
-        // vSeeds.push_back(CDNSSeedData("beta1.zcoin.io", "beta1.zcoin.io", false));
-        // vSeeds.push_back(CDNSSeedData("beta2.zcoin.io", "beta2.zcoin.io", false));
+        // lava test seeds
+        // vSeeds.push_back(CDNSSeedData("beta1.lava.io", "beta1.lava.io", false));
+        // vSeeds.push_back(CDNSSeedData("beta2.lava.io", "beta2.lava.io", false));
         // vSeeds.push_back(CDNSSeedData("45.76.182.254", "45.76.182.254", false));
-        // vSeeds.push_back(CDNSSeedData("MTP1", "mtp1.zcoin.io", false));
-        // vSeeds.push_back(CDNSSeedData("MTP2", "mtp2.zcoin.io", false));
-        vSeeds.push_back(CDNSSeedData("SIGMA1", "sigma1.zcoin.io", false));
-        vSeeds.push_back(CDNSSeedData("SIGMA2", "sigma2.zcoin.io", false));
+        // vSeeds.push_back(CDNSSeedData("MTP1", "mtp1.lava.io", false));
+        // vSeeds.push_back(CDNSSeedData("MTP2", "mtp2.lava.io", false));
+        vSeeds.push_back(CDNSSeedData("SIGMA1", "sigma1.lava.io", false));
+        vSeeds.push_back(CDNSSeedData("SIGMA2", "sigma2.lava.io", false));
 
 //        vSeeds.push_back(CDNSSeedData("testnetbitcoin.jonasschnelli.ch", "testnet-seed.bitcoin.jonasschnelli.ch", true));
 //        vSeeds.push_back(CDNSSeedData("petertodd.org", "seed.tbtc.petertodd.org", true));
@@ -513,10 +513,10 @@ public:
         extraNonce[3] = 0x00;
         genesis = CreateGenesisBlock(ZC_GENESIS_BLOCK_TIME, 1, 0x207fffff, 1, 0 * COIN, extraNonce);
         consensus.hashGenesisBlock = genesis.GetHash();
-        //btzc: update regtest zcoin hashGenesisBlock and hashMerkleRoot
-//        std::cout << "zcoin regtest genesisBlock hash: " << consensus.hashGenesisBlock.ToString() << std::endl;
-//        std::cout << "zcoin regtest hashMerkleRoot hash: " << genesis.hashMerkleRoot.ToString() << std::endl;
-        //btzc: update testnet zcoin hashGenesisBlock and hashMerkleRoot
+        //btzc: update regtest lava hashGenesisBlock and hashMerkleRoot
+//        std::cout << "lava regtest genesisBlock hash: " << consensus.hashGenesisBlock.ToString() << std::endl;
+//        std::cout << "lava regtest hashMerkleRoot hash: " << genesis.hashMerkleRoot.ToString() << std::endl;
+        //btzc: update testnet lava hashGenesisBlock and hashMerkleRoot
         // assert(consensus.hashGenesisBlock ==
         //       uint256S("0x2278d5d314d0e967ee4102d181c95fa3fe98d556b2f3dbfa29ccc79f480a2488"));
         // assert(genesis.hashMerkleRoot ==

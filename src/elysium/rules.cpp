@@ -598,8 +598,8 @@ bool IsTransactionTypeAllowed(int txBlock, uint32_t txProperty, uint16_t txType,
         if (entry.txType != txType || entry.txVersion != version) {
             continue;
         }
-        // a property identifier of 0 (= XZC) may be used as wildcard
-        if (ELYSIUM_PROPERTY_XZC == txProperty && !entry.allowWildcard) {
+        // a property identifier of 0 (= LAVA) may be used as wildcard
+        if (ELYSIUM_PROPERTY_LAVA == txProperty && !entry.allowWildcard) {
             continue;
         }
         // transactions are not restricted in the test ecosystem

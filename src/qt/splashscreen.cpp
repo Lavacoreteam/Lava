@@ -44,9 +44,10 @@ SplashScreen::SplashScreen(const QPixmap &pixmap, Qt::WindowFlags f) : QSplashSc
     // define text to place
     QString titleText       = QString(QApplication::applicationName()).replace(QString("-testnet"), QString(""), Qt::CaseSensitive); // cut of testnet, place it as single object further down
     //QString versionText     = QString("Version %1 ").arg(QString::fromStdString(FormatFullVersion()));
-    //QString copyrightText1   = QChar(0xA9)+QString(" 2009-%1 ").arg(COPYRIGHT_YEAR) + QString(tr("The Bitcoin developers"));
-    //QString copyrightText2   = QChar(0xA9)+QString(" 2011-%1 ").arg(COPYRIGHT_YEAR) + QString(tr("The Litecoin developers"));
-    //QString copyrightText3   = QChar(0xA9)+QString(" 2014 ") + QString(tr("The Zcoin developers"));
+    QString copyrightText1   = QChar(0xA9)+QString(" 2009-%1 ").arg(COPYRIGHT_YEAR) + QString(tr("The Bitcoin developers"));
+    QString copyrightText2   = QChar(0xA9)+QString(" 2011-%1 ").arg(COPYRIGHT_YEAR) + QString(tr("The Litecoin developers"));
+    QString copyrightText3   = QChar(0xA9)+QString(" 2016-%1 ").arg(COPYRIGHT_YEAR) + QString(tr("The Zcoin developers"));
+    QString copyrightText4   = QChar(0xA9)+QString(" 2020 ") + QString(tr("The Lava developers"));
 
     QString font            = "Arial";
 
@@ -67,9 +68,9 @@ SplashScreen::SplashScreen(const QPixmap &pixmap, Qt::WindowFlags f) : QSplashSc
 
     // draw copyright stuff
     pixPaint.setFont(QFont(font, 9*fontFactor));
-    //pixPaint.drawText(paddingLeftCol2,paddingTopCol2+line1,copyrightText1);
-    //pixPaint.drawText(paddingLeftCol2,paddingTopCol2+line2,copyrightText2);
-    //pixPaint.drawText(paddingLeftCol2,paddingTopCol2+line3,copyrightText3);
+    pixPaint.drawText(paddingLeftCol2,paddingTopCol2+line1,copyrightText1);
+    pixPaint.drawText(paddingLeftCol2,paddingTopCol2+line2,copyrightText2);
+    pixPaint.drawText(paddingLeftCol2,paddingTopCol2+line3,copyrightText3);
 
     pixPaint.end();
 
@@ -118,7 +119,7 @@ SplashScreen::SplashScreen(const QPixmap &pixmap, Qt::WindowFlags f) : QSplashSc
 //    QRect rGradient(QPoint(0,0), splashSize);
 //    pixPaint.fillRect(rGradient, gradient);
 //
-//    // draw the Zcoin icon, expected size of PNG: 1024x1024
+//    // draw the Lava icon, expected size of PNG: 1024x1024
 //    QRect rectIcon(QPoint(-150,-122), QSize(430,430));
 //
 //    const QSize requiredSize(1024,1024);

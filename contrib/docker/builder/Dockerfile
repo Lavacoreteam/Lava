@@ -14,11 +14,11 @@ RUN apt-get update && apt-get install -y \
 RUN pip install ez_setup
 
 # create user to use
-RUN useradd -m -U zcoin-builder
+RUN useradd -m -U lava-builder
 
 # create a volume for home directory
-VOLUME [ "/home/zcoin-builder" ]
+VOLUME [ "/home/lava-builder" ]
 
 # start shell with created user
-USER zcoin-builder
-WORKDIR /home/zcoin-builder
+USER lava-builder
+WORKDIR /home/lava-builder

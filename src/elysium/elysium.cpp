@@ -154,7 +154,7 @@ std::string elysium::strMPProperty(uint32_t propertyId)
         str = strprintf("Test token: %d : 0x%08X", 0x7FFFFFFF & propertyId, propertyId);
     } else {
         switch (propertyId) {
-            case ELYSIUM_PROPERTY_XZC: str = "XZC";
+            case ELYSIUM_PROPERTY_LAVA: str = "LAVA";
                 break;
             case ELYSIUM_PROPERTY_ELYSIUM: str = "ELYSIUM";
                 break;
@@ -306,7 +306,7 @@ bool elysium::isTestEcosystemProperty(uint32_t propertyId)
 
 bool elysium::isMainEcosystemProperty(uint32_t propertyId)
 {
-    if ((ELYSIUM_PROPERTY_XZC != propertyId) && !isTestEcosystemProperty(propertyId)) return true;
+    if ((ELYSIUM_PROPERTY_LAVA != propertyId) && !isTestEcosystemProperty(propertyId)) return true;
 
     return false;
 }
@@ -1284,7 +1284,7 @@ int input_mp_offers_string(const std::string& s)
     uint256 txid = uint256S(vstr[i++]);
 
     // TODO: should this be here? There are usually no sanity checks..
-    if (ELYSIUM_PROPERTY_XZC != prop_desired) return -1;
+    if (ELYSIUM_PROPERTY_LAVA != prop_desired) return -1;
 
     const std::string combo = STR_SELLOFFER_ADDR_PROP_COMBO(sellerAddr, prop);
     CMPOffer newOffer(offerBlock, amountOriginal, prop, btcDesired, minFee, blocktimelimit, txid);

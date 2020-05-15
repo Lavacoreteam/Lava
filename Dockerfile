@@ -1,4 +1,4 @@
-# This is a Dockerfile for zcoind.
+# This is a Dockerfile for lavad.
 FROM debian:stretch
 
 # Install required system packages
@@ -39,18 +39,18 @@ RUN curl -L https://github.com/zeromq/libzmq/releases/download/v4.3.1/zeromq-4.3
     cd / && rm -rf /tmp/zeromq-4.3.1/
 
 # Create user to run daemon
-RUN useradd -m -U zcoind
+RUN useradd -m -U lavad
 
-# Build Zcoin
-COPY . /tmp/zcoin/
+# Build Lava
+COPY . /tmp/lava/
 
-RUN cd /tmp/zcoin && \
+RUN cd /tmp/lava && \
     ./autogen.sh && \
     ./configure --without-gui --prefix=/usr && \
     make -j$(nproc) && \
     make check && \
     make install && \
-    cd / && rm -rf /tmp/zcoin
+    cd / && rm -rf /tmp/lava
 
 # Remove unused packages
 RUN apt-get remove -y \
@@ -65,11 +65,11 @@ RUN apt-get remove -y \
     libzmq3-dev \
     make
 
-# Start Zcoin Daemon
-USER zcoind
+# Start Lava Daemon
+USER lavad
 
-RUN mkdir /home/zcoind/.zcoin
-VOLUME [ "/home/zcoind/.zcoin" ]
+RUN mkdir /home/lavad/.lava
+VOLUME [ "/home/lavad/.lava" ]
 
 # Main network ports
 EXPOSE 8168
@@ -83,4 +83,4 @@ EXPOSE 18888
 EXPOSE 18444
 EXPOSE 28888
 
-ENTRYPOINT [ "/usr/bin/zcoind" ]
+ENTRYPOINT [ "/usr/bin/lavad" ]

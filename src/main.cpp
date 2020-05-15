@@ -76,7 +76,7 @@
 using namespace std;
 
 #if defined(NDEBUG)
-# error "Zcoin cannot be compiled without assertions."
+# error "Lava cannot be compiled without assertions."
 #endif
 
 /**
@@ -116,7 +116,7 @@ CTxMemPool mempool(::minRelayTxFee);
 FeeFilterRounder filterRounder(::minRelayTxFee);
 CTxMemPool stempool(::minRelayTxFee);
 
-// Zcoin znode
+// Lava znode
 map <uint256, int64_t> mapRejectedBlocks GUARDED_BY(cs_main);
 
 struct IteratorComparator {
@@ -149,7 +149,7 @@ static void CheckBlockIndex(const Consensus::Params &consensusParams);
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "Zcoin Signed Message:\n";
+const string strMessageMagic = "Lava Signed Message:\n";
 
 // Internal stuff
 namespace {
@@ -1247,7 +1247,7 @@ bool AcceptToMemoryPoolWorker(
         const CAmount &nAbsurdFee,
         std::vector <uint256> &vHashTxnToUncache,
         bool isCheckWalletTransaction,
-        bool markZcoinSpendTransactionSerial) {
+        bool markLavaSpendTransactionSerial) {
     bool fTestNet = (Params().NetworkIDString() == CBaseChainParams::TESTNET);
     LogPrintf("AcceptToMemoryPoolWorker(),fCheckInputs=%s, tx.IsZerocoinSpend()=%s, fTestNet=%s\n",
               fCheckInputs, tx.IsZerocoinSpend() || tx.IsSigmaSpend(), fTestNet);
@@ -1833,10 +1833,10 @@ bool AcceptToMemoryPoolWorker(
         }
     }
 
-    if ((tx.IsZerocoinSpend() || tx.IsZerocoinRemint()) && markZcoinSpendTransactionSerial)
+    if ((tx.IsZerocoinSpend() || tx.IsZerocoinRemint()) && markLavaSpendTransactionSerial)
         zcState->AddSpendToMempool(zcSpendSerials, hash);
     if (tx.IsSigmaSpend()){
-        if(markZcoinSpendTransactionSerial)
+        if(markLavaSpendTransactionSerial)
             sigmaState->AddSpendToMempool(zcSpendSerialsV3, hash);
         LogPrintf("Updating mint tracker state from Mempool..");
 #ifdef ENABLE_WALLET
@@ -1846,7 +1846,7 @@ bool AcceptToMemoryPoolWorker(
         }
 #endif
     }
-    if(markZcoinSpendTransactionSerial)
+    if(markLavaSpendTransactionSerial)
         sigmaState->AddMintsToMempool(zcMintPubcoinsV3);
 #ifdef ENABLE_WALLET
     if(tx.IsSigmaMint()){
@@ -1873,7 +1873,7 @@ bool AcceptToMemoryPool(
 	    bool fOverrideMempoolLimit,
 	    const CAmount nAbsurdFee,
         bool isCheckWalletTransaction,
-        bool markZcoinSpendTransactionSerial) {
+        bool markLavaSpendTransactionSerial) {
     LogPrintf("AcceptToMemoryPool(), transaction: %s, fCheckInputs=%s\n",
               tx.GetHash().ToString(),
               fCheckInputs);
@@ -1882,7 +1882,7 @@ bool AcceptToMemoryPool(
         pool, state, tx, fCheckInputs, fLimitFree, pfMissingInputs,
         fOverrideMempoolLimit, nAbsurdFee,
         vHashTxToUncache, isCheckWalletTransaction,
-        markZcoinSpendTransactionSerial);
+        markLavaSpendTransactionSerial);
     if (res) {
         LogPrintf("AcceptToMemoryPool: Successfully added txn %s to %s.\n",
                   tx.ToString(),
@@ -2469,7 +2469,7 @@ bool CheckInputs(const CTransaction &tx, CValidationState &state, const CCoinsVi
                 return state.DoS(
                     100, false,
                     REJECT_MALFORMED,
-                    "CheckSpendZcoinTransaction: can't mix zerocoin spend input with regular ones");
+                    "CheckSpendLavaTransaction: can't mix zerocoin spend input with regular ones");
             }
             CDataStream serializedCoinSpend((const char *)&*(txin.scriptSig.begin() + 1),
                                             (const char *)&*txin.scriptSig.end(),
@@ -2792,7 +2792,7 @@ static int64_t nTimeTotal = 0;
 
 bool ConnectBlock(const CBlock &block, CValidationState &state, CBlockIndex *pindex, CCoinsViewCache &view,
                   const CChainParams &chainparams, bool fJustCheck) {
-    //btzc: zcoin code
+    //btzc: lava code
 //    if (BlockMerkleBranch(block).size() <=0) {
 //        return false;
 //    };
@@ -3456,7 +3456,7 @@ bool static DisconnectTip(CValidationState &state, const CChainParams &chainpara
                     false, /* fOverrideMempoolLimit */
                     0, /* nAbsurdFee */
                     false, /* isCheckWalletTransaction */
-                    false /* markZcoinSpendTransactionSerial */
+                    false /* markLavaSpendTransactionSerial */
                 );
             }
             if (tx.IsCoinBase() || !AcceptToMemoryPool(mempool, stateDummy, tx, true, false, NULL)) {
@@ -6075,7 +6075,7 @@ bool static AlreadyHave(const CInv &inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
             return false;
 
         /*
-            Zcoin Related Inventory Messages
+            Lava Related Inventory Messages
 
             --
 
@@ -6905,7 +6905,7 @@ bool static ProcessMessage(CNode *pfrom, string strCommand,
                 false, /* fOverrideMempoolLimit */
                 0, /* nAbsurdFee */
                 true, /* isCheckWalletTransaction */
-                false /* markZcoinSpendTransactionSerial */
+                false /* markLavaSpendTransactionSerial */
             );
 
             if (CNode::isTxDandelionEmbargoed(tx.GetHash())) {
@@ -6972,7 +6972,7 @@ bool static ProcessMessage(CNode *pfrom, string strCommand,
                             false, /* fOverrideMempoolLimit */
                             0, /* nAbsurdFee */
                             true, /* isCheckWalletTransaction */
-                            false /* markZcoinSpendTransactionSerial */
+                            false /* markLavaSpendTransactionSerial */
                         );
 
                         RelayTransaction(orphanTx);
@@ -7010,7 +7010,7 @@ bool static ProcessMessage(CNode *pfrom, string strCommand,
             BOOST_FOREACH(uint256
             hash, vEraseQueue)
             EraseOrphanTx(hash);
-            //btzc: zcoin condition
+            //btzc: lava condition
         } else if (
             !AlreadyHave(inv) && tx.IsZerocoinSpend() && !tx.IsSigmaSpend() &&
             AcceptToMemoryPool(mempool, state, tx, false, true, &fMissingInputsZerocoin, false, 0, true)) {
@@ -7025,7 +7025,7 @@ bool static ProcessMessage(CNode *pfrom, string strCommand,
                 false, /* fOverrideMempoolLimit */
                 0, /* nAbsurdFee */
                 true, /* isCheckWalletTransaction */
-                false /* markZcoinSpendTransactionSerial */
+                false /* markLavaSpendTransactionSerial */
             );
             if (CNode::isTxDandelionEmbargoed(tx.GetHash())) {
                 //LogPrintf("Embargoed dandeliontx %s found in mempool; removing from embargo map.\n",
@@ -7105,7 +7105,7 @@ bool static ProcessMessage(CNode *pfrom, string strCommand,
                     false, /* fOverrideMempoolLimit */
                     0, /* nAbsurdFee */
                     false, /* isCheckWalletTransaction */
-                    false /* markZcoinSpendTransactionSerial */
+                    false /* markLavaSpendTransactionSerial */
                     );
                 if (ret) {
                     LogPrint("mempool",

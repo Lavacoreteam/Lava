@@ -39,25 +39,25 @@ class WalletDumpNonHDToHDTest(BitcoinTestFramework):
         self.nodes[0].generate(120)
         self.sync_all()
 
-        zcoin_denoms = [1, 10, 25, 50, 100]
+        lava_denoms = [1, 10, 25, 50, 100]
 
         # make confirmed mints and spends
-        for denom in zcoin_denoms:
+        for denom in lava_denoms:
             self.nodes[0].mintzerocoin(denom)
             self.nodes[0].mintzerocoin(denom)
             self.nodes[0].mintzerocoin(denom)
 
         self.nodes[0].generate(6)
         
-        for denom in zcoin_denoms:
+        for denom in lava_denoms:
             self.nodes[0].spendzerocoin(denom)
 
         self.nodes[0].generate(1)
 
         #get list of unspent mints and spends, mints
-        zcoin_mints = self.nodes[0].listmintzerocoins().sort(key=lambda x: x['id'], reverse=False)
-        zcoin_unspentmints = self.nodes[0].listunspentmintzerocoins().sort(key=lambda x: x['txid'], reverse=False)
-        zcoin_spendzcoins = self.nodes[0].listspendzerocoins(100).sort(key=lambda x: x['txid'], reverse=False)
+        lava_mints = self.nodes[0].listmintzerocoins().sort(key=lambda x: x['id'], reverse=False)
+        lava_unspentmints = self.nodes[0].listunspentmintzerocoins().sort(key=lambda x: x['txid'], reverse=False)
+        lava_spendlavas = self.nodes[0].listspendzerocoins(100).sort(key=lambda x: x['txid'], reverse=False)
         tmpdir = self.options.tmpdir
 
         try:
@@ -72,13 +72,13 @@ class WalletDumpNonHDToHDTest(BitcoinTestFramework):
 
         self.nodes[0].importwallet(tmpdir + "/node0/wallet.unencrypted.dump")
 
-        exp_zcoin_mints = self.nodes[0].listmintzerocoins().sort(key=lambda x: x['id'], reverse=False)
-        exp_zcoin_unspentmints = self.nodes[0].listunspentmintzerocoins().sort(key=lambda x: x['txid'], reverse=False)
-        exp_zcoin_spendzcoins = self.nodes[0].listspendzerocoins(100).sort(key=lambda x: x['txid'], reverse=False)
+        exp_lava_mints = self.nodes[0].listmintzerocoins().sort(key=lambda x: x['id'], reverse=False)
+        exp_lava_unspentmints = self.nodes[0].listunspentmintzerocoins().sort(key=lambda x: x['txid'], reverse=False)
+        exp_lava_spendlavas = self.nodes[0].listspendzerocoins(100).sort(key=lambda x: x['txid'], reverse=False)
 
-        assert_equal(exp_zcoin_mints, zcoin_mints)
-        assert_equal(exp_zcoin_unspentmints, zcoin_unspentmints)
-        assert_equal(exp_zcoin_spendzcoins, zcoin_spendzcoins)
+        assert_equal(exp_lava_mints, lava_mints)
+        assert_equal(exp_lava_unspentmints, lava_unspentmints)
+        assert_equal(exp_lava_spendlavas, lava_spendlavas)
 
 if __name__ == '__main__':
     WalletDumpNonHDToHDTest().main()

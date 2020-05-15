@@ -79,7 +79,7 @@ bool AcceptToMemoryPool(
         bool fOverrideMempoolLimit=false,
         const CAmount nAbsurdFee=0,
         bool isCheckWalletTransaction = false,
-        bool markZcoinSpendTransactionSerial = true);
+        bool markLavaSpendTransactionSerial = true);
 
 namespace {
     const int MAX_OUTBOUND_CONNECTIONS = 8;
@@ -2254,7 +2254,7 @@ void ThreadDandelionShuffle() {
                 GetTimeMicros(), consensus.nDandelionShuffleInterval);
             // Sleep for 1 second until the next shuffle time.
             // Sleeping for DANDELION_SHUFFLE_INTERVAL seconds at once
-            // results to not being able to close zcoin.
+            // results to not being able to close lava.
             int time_to_sleep = (nNextDandelionShuffle - GetTimeMicros()) / 1000;
             while (time_to_sleep > 0) {
                 if (!CNode::interruptNet.sleep_for(

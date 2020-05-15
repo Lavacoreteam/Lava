@@ -93,7 +93,7 @@ unsigned int DarkGravityWave(const CBlockIndex* pindexLast, const Consensus::Par
     return bnNew.GetCompact();
 }
 
-// Zcoin GetNextWorkRequired
+// Lava GetNextWorkRequired
 unsigned int GetNextWorkRequired(const CBlockIndex *pindexLast, const CBlockHeader *pblock, const Consensus::Params &params,bool fProofOfStake) {
     assert(pindexLast != nullptr);
 

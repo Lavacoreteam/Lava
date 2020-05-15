@@ -33,7 +33,7 @@ jobs:
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
-        mv depends.tar.gz zcoin-*.tar.gz $ARTIFACT_DIR
+        mv depends.tar.gz lava-*.tar.gz $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
@@ -54,7 +54,7 @@ jobs:
     - name: Extract Archives
       run: |
         tar -xzf depends.tar.gz
-        tar -xzf zcoin-*.tar.gz --strip-components=1
+        tar -xzf lava-*.tar.gz --strip-components=1
       working-directory: ${{ env.SOURCE_ARTIFACT }}
     - name: Install Required Packages
       run: |
@@ -63,7 +63,7 @@ jobs:
     - name: Build Dependencies
       run: make -C depends -j$(nproc)
       working-directory: ${{ env.SOURCE_ARTIFACT }}
-    - name: Build Zcoin
+    - name: Build Lava
       run: |
         ./configure --disable-jni --enable-elysium --enable-tests --with-comparison-tool=no --prefix=$(realpath depends/x86_64-pc-linux-gnu)
         make -j$(nproc)
@@ -71,7 +71,7 @@ jobs:
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
-        mv $SOURCE_ARTIFACT/src/{zcoin-cli,zcoin-tx,zcoind,qt/zcoin-qt} $ARTIFACT_DIR
+        mv $SOURCE_ARTIFACT/src/{lava-cli,lava-tx,lavad,qt/lava-qt} $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
@@ -81,7 +81,7 @@ jobs:
       if: failure()
       run: |
         tor_log=$SOURCE_ARTIFACT/src/tor/test-suite.log
-        zcoin_log=$SOURCE_ARTIFACT/src/test-suite.log
+        lava_log=$SOURCE_ARTIFACT/src/test-suite.log
 
         mkdir -p $TEST_LOG_ARTIFACT_DIR
 
@@ -89,8 +89,8 @@ jobs:
           mv $tor_log $TEST_LOG_ARTIFACT_DIR/tor.log
         fi
 
-        if test -f $zcoin_log; then
-          mv $zcoin_log $TEST_LOG_ARTIFACT_DIR/zcoin.log
+        if test -f $lava_log; then
+          mv $lava_log $TEST_LOG_ARTIFACT_DIR/lava.log
         fi
     - name: Upload Test Logs Artifact
       if: failure()
@@ -112,7 +112,7 @@ jobs:
     - name: Extract Archives
       run: |
         tar -xzf depends.tar.gz
-        tar -xzf zcoin-*.tar.gz --strip-components=1
+        tar -xzf lava-*.tar.gz --strip-components=1
       working-directory: ${{ env.SOURCE_ARTIFACT }}
     - name: Install Required Packages
       run: |
@@ -125,7 +125,7 @@ jobs:
     - name: Build Dependencies
       run: make -C depends -j$(nproc) HOST=x86_64-w64-mingw32
       working-directory: ${{ env.SOURCE_ARTIFACT }}
-    - name: Build Zcoin
+    - name: Build Lava
       run: |
         ./configure --disable-jni --enable-elysium --prefix=$(realpath depends/x86_64-w64-mingw32)
         make -j$(nproc)
@@ -133,7 +133,7 @@ jobs:
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
-        mv $SOURCE_ARTIFACT/src/{zcoin-cli.exe,zcoin-tx.exe,zcoind.exe,qt/zcoin-qt.exe} $ARTIFACT_DIR
+        mv $SOURCE_ARTIFACT/src/{lava-cli.exe,lava-tx.exe,lavad.exe,qt/lava-qt.exe} $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
@@ -153,7 +153,7 @@ jobs:
     - name: Extract Archives
       run: |
         tar -xzf depends.tar.gz
-        tar -xzf zcoin-*.tar.gz --strip-components=1
+        tar -xzf lava-*.tar.gz --strip-components=1
       working-directory: ${{ env.SOURCE_ARTIFACT }}
     - name: Use Xcode instead of Command Line Tools
       run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
@@ -162,7 +162,7 @@ jobs:
     - name: Build Dependencies
       run: make -C depends -j$(sysctl -n hw.activecpu)
       working-directory: ${{ env.SOURCE_ARTIFACT }}
-    - name: Build Zcoin
+    - name: Build Lava
       run: |
         ./configure --disable-jni --enable-elysium --prefix=$(grealpath depends/x86_64-apple-darwin*)
         make -j$(sysctl -n hw.activecpu)
@@ -170,7 +170,7 @@ jobs:
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
-        mv $SOURCE_ARTIFACT/src/{zcoin-cli,zcoin-tx,zcoind,qt/zcoin-qt} $ARTIFACT_DIR
+        mv $SOURCE_ARTIFACT/src/{lava-cli,lava-tx,lavad,qt/lava-qt} $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:

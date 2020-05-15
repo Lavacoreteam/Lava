@@ -76,7 +76,7 @@ UniValue elysium_createpayload_dexsell(const UniValue& params, bool fHelp)
         throw runtime_error(
             "elysium_createpayload_dexsell propertyidforsale \"amountforsale\" \"amountdesired\" paymentwindow minacceptfee action\n"
 
-            "\nCreate a payload to place, update or cancel a sell offer on the traditional distributed ELYSIUM/XZC exchange.\n"
+            "\nCreate a payload to place, update or cancel a sell offer on the traditional distributed ELYSIUM/LAVA exchange.\n"
 
             "\nArguments:\n"
 
@@ -105,7 +105,7 @@ UniValue elysium_createpayload_dexsell(const UniValue& params, bool fHelp)
 
     if (action <= CMPTransaction::UPDATE) { // actions 3 permit zero values, skip check
         amountForSale = ParseAmount(params[1], true); // TELYSIUM/ELYSIUM is divisible
-        amountDesired = ParseAmount(params[2], true); // XZC is divisible
+        amountDesired = ParseAmount(params[2], true); // LAVA is divisible
         paymentWindow = ParseDExPaymentWindow(params[3]);
         minAcceptFee = ParseDExFee(params[4]);
     }
@@ -197,8 +197,8 @@ UniValue elysium_createpayload_issuancefixed(const UniValue& params, bool fHelp)
             "\"payload\"             (string) the hex-encoded payload\n"
 
             "\nExamples:\n"
-            + HelpExampleCli("elysium_createpayload_issuancefixed", "2 1 0 \"Companies\" \"Zcoin Mining\" \"Quantum Miner\" \"\" \"\" \"1000000\"")
-            + HelpExampleRpc("elysium_createpayload_issuancefixed", "2, 1, 0, \"Companies\", \"Zcoin Mining\", \"Quantum Miner\", \"\", \"\", \"1000000\"")
+            + HelpExampleCli("elysium_createpayload_issuancefixed", "2 1 0 \"Companies\" \"Lava Mining\" \"Quantum Miner\" \"\" \"\" \"1000000\"")
+            + HelpExampleRpc("elysium_createpayload_issuancefixed", "2, 1, 0, \"Companies\", \"Lava Mining\", \"Quantum Miner\", \"\", \"\", \"1000000\"")
         );
 
     uint8_t ecosystem = ParseEcosystem(params[0]);
@@ -245,8 +245,8 @@ UniValue elysium_createpayload_issuancecrowdsale(const UniValue& params, bool fH
             "\"payload\"             (string) the hex-encoded payload\n"
 
             "\nExamples:\n"
-            + HelpExampleCli("elysium_createpayload_issuancecrowdsale", "2 1 0 \"Companies\" \"Zcoin Mining\" \"Quantum Miner\" \"\" \"\" 2 \"100\" 1483228800 30 2")
-            + HelpExampleRpc("elysium_createpayload_issuancecrowdsale", "2, 1, 0, \"Companies\", \"Zcoin Mining\", \"Quantum Miner\", \"\", \"\", 2, \"100\", 1483228800, 30, 2")
+            + HelpExampleCli("elysium_createpayload_issuancecrowdsale", "2 1 0 \"Companies\" \"Lava Mining\" \"Quantum Miner\" \"\" \"\" 2 \"100\" 1483228800 30 2")
+            + HelpExampleRpc("elysium_createpayload_issuancecrowdsale", "2, 1, 0, \"Companies\", \"Lava Mining\", \"Quantum Miner\", \"\", \"\", 2, \"100\", 1483228800, 30, 2")
         );
 
     uint8_t ecosystem = ParseEcosystem(params[0]);
@@ -294,8 +294,8 @@ UniValue elysium_createpayload_issuancemanaged(const UniValue& params, bool fHel
             "\"payload\"             (string) the hex-encoded payload\n"
 
             "\nExamples:\n"
-            + HelpExampleCli("elysium_createpayload_issuancemanaged", "2 1 0 \"Companies\" \"Zcoin Mining\" \"Quantum Miner\" \"\" \"\"")
-            + HelpExampleRpc("elysium_createpayload_issuancemanaged", "2, 1, 0, \"Companies\", \"Zcoin Mining\", \"Quantum Miner\", \"\", \"\"")
+            + HelpExampleCli("elysium_createpayload_issuancemanaged", "2 1 0 \"Companies\" \"Lava Mining\" \"Quantum Miner\" \"\" \"\"")
+            + HelpExampleRpc("elysium_createpayload_issuancemanaged", "2, 1, 0, \"Companies\", \"Lava Mining\", \"Quantum Miner\", \"\", \"\"")
         );
 
     uint8_t ecosystem = ParseEcosystem(params[0]);

@@ -40,9 +40,9 @@ QString BitcoinUnits::name(int unit)
 {
     switch(unit)
     {
-    case BTC: return QString("XZC");
-    case mBTC: return QString("mXZC");
-    case uBTC: return QString::fromUtf8("μXZC");
+    case BTC: return QString("LAVA");
+    case mBTC: return QString("mLAVA");
+    case uBTC: return QString::fromUtf8("μLAVA");
     default: return QString("???");
     }
 }
@@ -51,9 +51,9 @@ QString BitcoinUnits::description(int unit)
 {
     switch(unit)
     {
-    case BTC: return QString("zcoins");
-    case mBTC: return QString("Milli-zcoins (1 / 1" THIN_SP_UTF8 "000)");
-    case uBTC: return QString("Micro-zcoins (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+    case BTC: return QString("lavas");
+    case mBTC: return QString("Milli-lavas (1 / 1" THIN_SP_UTF8 "000)");
+    case uBTC: return QString("Micro-lavas (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
     default: return QString("???");
     }
 }
