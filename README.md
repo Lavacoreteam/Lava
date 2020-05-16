@@ -13,7 +13,7 @@ Lava
 What is Lava?
 --------------
 
-[Lava](https://lava.money) is a privacy focused cryptocurrency forked from zcoin that utilizes zero-knowledge proofs which allows users to destroy coins and then redeem them later for brand new ones with no transaction history. Zcoin was the first project to implement the Zerocoin protocol and transitioned to the [Sigma protocol](https://lava.money/what-is-sigma-and-why-is-it-replacing-zerocoin-in-lava/) which has no trusted setup and small proof sizes. Lava also utilises [Dandelion++](https://arxiv.org/abs/1805.11060) to obscure the originating IP of transactions without relying on any external services such as Tor/i2P.
+[Lava](https://lava.money) is a privacy focused cryptocurrency forked from Zcoin (Zcoin.io) that utilizes zero-knowledge proofs which allows users to destroy coins and then redeem them later for brand new ones with no transaction history. Zcoin was the first project to implement the Zerocoin protocol and transitioned to the [Sigma protocol](https://lava.money/what-is-sigma-and-why-is-it-replacing-zerocoin-in-lava/) which has no trusted setup and small proof sizes. Lava also utilises [Dandelion++](https://arxiv.org/abs/1805.11060) to obscure the originating IP of transactions without relying on any external services such as Tor/i2P.
 
 
 How Lava’s and Zcoin's Privacy Technology Compares to the Competition
