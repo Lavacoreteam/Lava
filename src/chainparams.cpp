@@ -149,10 +149,10 @@ public:
         consensus.nInitialMTPDifficulty = 0x1c021e57;
         consensus.nMTPRewardReduction = 2;
 
-        consensus.nDisableZerocoinStartBlock = 157000;
+        consensus.nDisableZerocoinStartBlock = 0;
         consensus.nLastPOWBlock = 131;
         consensus.nStakeTimestampMask = 0xf; // 15
-        consensus.FounderAddress = "Lgv4yubXALZcPndex8f9BJJ4RxfAUR7pbh";
+        consensus.FounderAddress = "LTWtQ32QXCWyhB3adFffzkTS45qvaDw1ap";
         nMaxTipAge = 6 * 60 * 60; // ~144 blocks behind -> 2 x fork detection time, was 24 * 60 * 60 in bitcoin
 
         nPoolMaxTransactions = 3;

@@ -2092,10 +2092,12 @@ bool ReadBlockHeaderFromDisk(CBlock &block, const CDiskBlockPos &pos) {
 
 CAmount GetFounderPaymentAmount(int nHeight){
     CAmount nSubsidy = 0 * COIN;
+    int nBlocks24hr = 720;
+    int FounderReward = 35;
     if(nHeight == 15)
         nSubsidy = 100000000 * COIN;//Add 100 mil for premine
-    else if (nHeight % 2880 == 0 && nHeight > 2 || nHeight ==133){
-        nSubsidy = 2808000 * COIN;//Founder superblock each 24hrs,calculated with 2880 * 975
+    else if (nHeight % 2880 == 0 && nHeight > 2){
+        nSubsidy = nBlocks24hr * FounderReward * COIN;
     }
     return nSubsidy;
 }
@@ -2105,7 +2107,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params &consensusParams, i
     if (nHeight == 0)
         return 0;
 
-    CAmount nSubsidy = 525 * COIN;
+    CAmount nSubsidy = 15 * COIN;
     //Add Founder payment amount to block reward if needed
     nSubsidy += GetFounderPaymentAmount(nHeight);
 
@@ -6404,6 +6406,11 @@ bool static ProcessMessage(CNode *pfrom, string strCommand,
             pfrom->nVersion = 300;
         if (!vRecv.empty())
             vRecv >> addrFrom >> nNonce;
+        if (!vRecv.empty()) {
+            std::string strSubVer;
+            vRecv >> LIMITED_STRING(strSubVer, MAX_SUBVERSION_LENGTH);
+            pfrom->cleanSubVer = SanitizeString(strSubVer);
+        }
         if (!vRecv.empty()) {
             vRecv >> pfrom->nStartingHeight;
         }
