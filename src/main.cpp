@@ -2096,7 +2096,7 @@ CAmount GetFounderPaymentAmount(int nHeight){
     int FounderReward = 35;
     if(nHeight == 15)
         nSubsidy = 100000000 * COIN;//Add 100 mil for premine
-    else if (nHeight % 2880 == 0 && nHeight > 2){
+    else if (nHeight % nBlocks24hr == 0 && nHeight > 2){
         nSubsidy = nBlocks24hr * FounderReward * COIN;
     }
     return nSubsidy;
