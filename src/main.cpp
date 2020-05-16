@@ -1288,6 +1288,11 @@ bool AcceptToMemoryPoolWorker(
         LogPrintf("cause by -> coinbase!\n");
         return state.DoS(100, false, REJECT_INVALID, "coinbase");
     }
+    // Coinstake is only valid in a block, not as a loose transaction
+    if (tx.IsCoinStake()) {
+        LogPrintf("cause by -> coinstake!\n");
+        return state.DoS(100, false, REJECT_INVALID, "coinstake");
+    }
 
     // Don't relay version 2 transactions until CSV is active, and we can be
     // sure that such transactions will be mined (unless we're on
