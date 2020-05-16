@@ -20,7 +20,7 @@ osx=true
 SIGNER=
 VERSION=
 commit=false
-url=${url:-https://github.com/lavaofficial/lava}
+url=${url:-https://github.com/Lavacoreteam/Lava}
 gsigsUrl=https://github.com/bitcoin-core/gitian.sigs
 detachUrl=https://github.com/bitcoin-core/bitcoin-detached-sigs.git
 proc=2
@@ -44,7 +44,7 @@ version		Version number, commit, or branch to build. If building a commit or bra
 
 Options:
 -c|--commit	Indicate that the version argument is for a commit or branch
--u|--url	Specify the URL of the lavaofficial repository. Default is https://github.com/lavaofficial/lava.git
+-u|--url	Specify the URL of the lavaofficial repository. Default is https://github.com/Lavacoreteam/Lava.git
 -g|--gsigsUrl	Specify the URL of the gitian.sigs repository. Default is https://github.com/bitcoin-core/gitian.sigs
 -d|--detachUrl	Specify the URL of the bitcoin-detached-sigs repository. Default is https://github.com/bitcoin-core/bitcoin-detached-sigs
 -v|--verify 	Verify the Gitian build

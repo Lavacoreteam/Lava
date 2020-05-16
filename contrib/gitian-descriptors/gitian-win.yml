@@ -23,7 +23,7 @@ packages:
 - "python"
 - "rename"
 remotes:
-- "url": "https://github.com/lavaofficial/lava"
+- "url": "https://github.com/Lavacoreteam/Lava"
   "dir": "lava"
 files: []
 script: |

@@ -1,12 +1,12 @@
 Lava
 ===============
 
-[![Financial Contributors on Open Collective](https://opencollective.com/lava/all/badge.svg?label=financial+contributors)](https://opencollective.com/lava) [![latest-release](https://img.shields.io/github/release/lavaofficial/lava)](https://github.com/lavaofficial/lava/releases)
-[![GitHub last-release](https://img.shields.io/github/release-date/lavaofficial/lava)](https://github.com/lavaofficial/lava/releases)
-[![GitHub downloads](https://img.shields.io/github/downloads/lavaofficial/lava/total)](https://github.com/lavaofficial/lava/releases)
-[![GitHub commits-since-last-version](https://img.shields.io/github/commits-since/lavaofficial/lava/latest/master)](https://github.com/lavaofficial/lava/graphs/commit-activity)
-[![GitHub commits-per-month](https://img.shields.io/github/commit-activity/m/lavaofficial/lava)](https://github.com/lavaofficial/lava/graphs/code-frequency)
-[![GitHub last-commit](https://img.shields.io/github/last-commit/lavaofficial/lava)](https://github.com/lavaofficial/lava/commits/master)
+[![Financial Contributors on Open Collective](https://opencollective.com/lava/all/badge.svg?label=financial+contributors)](https://opencollective.com/lava) [![latest-release](https://img.shields.io/github/release/lavaofficial/lava)](https://github.com/Lavacoreteam/Lava/releases)
+[![GitHub last-release](https://img.shields.io/github/release-date/lavaofficial/lava)](https://github.com/Lavacoreteam/Lava/releases)
+[![GitHub downloads](https://img.shields.io/github/downloads/lavaofficial/lava/total)](https://github.com/Lavacoreteam/Lava/releases)
+[![GitHub commits-since-last-version](https://img.shields.io/github/commits-since/lavaofficial/lava/latest/master)](https://github.com/Lavacoreteam/Lava/graphs/commit-activity)
+[![GitHub commits-per-month](https://img.shields.io/github/commit-activity/m/lavaofficial/lava)](https://github.com/Lavacoreteam/Lava/graphs/code-frequency)
+[![GitHub last-commit](https://img.shields.io/github/last-commit/lavaofficial/lava)](https://github.com/Lavacoreteam/Lava/commits/master)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/lavaofficial/lava.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/lavaofficial/lava/alerts/)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/lavaofficial/lava.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/lavaofficial/lava/context:cpp)
 
@@ -101,7 +101,7 @@ Build
 ----------------------
 1.  Clone the source:
 
-        git clone https://github.com/lavaofficial/lava
+        git clone https://github.com/Lavacoreteam/Lava
 
 2.  Build Lava-core:
 
@@ -133,7 +133,7 @@ See (doc/build-windows.md) for instructions on building on Windows 64/32 bit.
 ### Code Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="https://github.com/lavaofficial/lava/graphs/contributors"><img src="https://opencollective.com/lava/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/Lavacoreteam/Lava/graphs/contributors"><img src="https://opencollective.com/lava/contributors.svg?width=890&button=false" /></a>
 
 ### Financial Contributors
 
