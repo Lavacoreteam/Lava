@@ -1143,6 +1143,8 @@ bool CheckTransaction(
     CAmount nValueOut = 0;
     BOOST_FOREACH(const CTxOut &txout, tx.vout)
     {
+        if (txout.IsEmpty() && !tx.IsCoinBase() && !tx.IsCoinStake())
+            return state.DoS(100, error("CheckTransaction(): txout empty for user transaction"));
         if (txout.nValue < 0)
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-negative");
         if (txout.nValue > MAX_MONEY)
@@ -3466,7 +3468,7 @@ bool static DisconnectTip(CValidationState &state, const CChainParams &chainpara
                     false /* markLavaSpendTransactionSerial */
                 );
             }
-            if (tx.IsCoinBase() || !AcceptToMemoryPool(mempool, stateDummy, tx, true, false, NULL)) {
+            if (tx.IsCoinBase() || tx.IsCoinStake() || !AcceptToMemoryPool(mempool, stateDummy, tx, true, false, NULL)) {
                 mempool.removeRecursive(tx, removed);
 
                 // Changes to mempool should also be made to Dandelion stempool.
