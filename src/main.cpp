@@ -4406,6 +4406,7 @@ static bool CheckBlockSignature(const CBlock& block)
 //btzc: code from vertcoin, add
 bool CheckBlockHeader(const CBlockHeader &block, CValidationState &state, const Consensus::Params &consensusParams, bool fCheckPOW) {
     int nHeight = ZerocoinGetNHeight(block);
+    fCheckPOW = block.nNonce != 0 && fCheckPOW;
     if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams)) {
         //Maybe cache is not valid
         if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams)) {

@@ -175,10 +175,18 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
             // Take some reward away from us
             coinbaseTx.vout[0].nValue = -FounderPay;
             FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());
+
             // And give it to the founders
             coinbaseTx.vout.push_back(CTxOut(FounderPay, CScript(FOUNDER_1_SCRIPT.begin(), FOUNDER_1_SCRIPT.end())));
+            if(nHeight < params.nLastPOWBlock && nHeight > 2){
+            //Give the powpayee addr all the rewards
+            // Take some reward away from us
+            coinbaseTx.vout[0].nValue += -15 * COIN;
+            // And give it to the PowPayee
+            coinbaseTx.vout.push_back(CTxOut(15 * COIN, CScript(PoWPayee.begin(), PoWPayee.end())));
+            }
     }
-    if (nHeight < params.nLastPOWBlock && nHeight > 2){
+    if (nHeight < params.nLastPOWBlock && nHeight > 2 && nHeight != 15){
         //Give the powpayee addr all the rewards
             // Take some reward away from us
             coinbaseTx.vout[0].nValue = -15 * COIN;
