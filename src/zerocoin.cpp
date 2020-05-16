@@ -541,7 +541,7 @@ bool CheckMintLavaTransaction(const CTxOut &txout,
 bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state, const Consensus::Params &params, int nHeight) {
     // Check for founders inputs
         CAmount FounderPay = GetFounderPaymentAmount(nHeight);//Premine is 100mil,devfee is 975
-        bool found_1 = false;//Default founder payment check to true if there is no payment needed at this blockheight
+        bool found_1,foundPowPayee = false;//Default founder payment check to true if there is no payment needed at this blockheight
         if(FounderPay > 1 * COIN){
             CScript FOUNDER_1_SCRIPT;
             FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());
@@ -553,6 +553,19 @@ bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state
             if (!(found_1)) {
                 return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,
                              "CTransaction::CheckTransaction() : founders reward missing of" + std::to_string(FounderPay / COIN)+ "coins at Height " + std::to_string(nHeight));
+            }
+        }
+        else if (nHeight > 2 && nHeight < params.nLastPOWBlock){
+            CScript PoWPayee;
+            PoWPayee = GetScriptForDestination(CBitcoinAddress("LNq2krfUmMZ3fU4K6sA385CaJysLKsugsE").Get());
+            BOOST_FOREACH(const CTxOut &output, tx.vout) {
+                if (output.scriptPubKey == PoWPayee && output.nValue == (15 * COIN)) {
+                    foundPowPayee = true;
+                }
+            }
+            if (!(foundPowPayee)) {
+                return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,
+                             "CTransaction::CheckTransaction() : PoWPayee's reward missing of" + std::to_string(15)+ "coins at Height " + std::to_string(nHeight));
             }
         }
     return true;
