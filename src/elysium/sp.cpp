@@ -72,7 +72,7 @@ CMPSPInfo::CMPSPInfo(const boost::filesystem::path& path, bool fWipe)
     implied_elysium.category = "N/A";
     implied_elysium.subcategory = "N/A";
     implied_elysium.name = "Exodus";
-    implied_elysium.url = "https://www.lava.io";
+    implied_elysium.url = "https://www.lava.money";
     implied_elysium.data = "Exodus serve as the binding between Lava, smart properties and contracts created on the Exodus Layer.";
     implied_telysium.issuer = GetSystemAddress().ToString();
     implied_telysium.prop_type = ELYSIUM_PROPERTY_TYPE_DIVISIBLE;
@@ -80,7 +80,7 @@ CMPSPInfo::CMPSPInfo(const boost::filesystem::path& path, bool fWipe)
     implied_telysium.category = "N/A";
     implied_telysium.subcategory = "N/A";
     implied_telysium.name = "Test Exodus";
-    implied_telysium.url = "https://www.lava.io";
+    implied_telysium.url = "https://www.lava.money";
     implied_telysium.data = "Test Exodus serve as the binding between Lava, smart properties and contracts created on the Exodus Layer.";
 
     init();

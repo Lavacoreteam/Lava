@@ -360,13 +360,13 @@ public:
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
         // lava test seeds
-        // vSeeds.push_back(CDNSSeedData("beta1.lava.io", "beta1.lava.io", false));
-        // vSeeds.push_back(CDNSSeedData("beta2.lava.io", "beta2.lava.io", false));
+        // vSeeds.push_back(CDNSSeedData("beta1.lava.money", "beta1.lava.money", false));
+        // vSeeds.push_back(CDNSSeedData("beta2.lava.money", "beta2.lava.money", false));
         // vSeeds.push_back(CDNSSeedData("45.76.182.254", "45.76.182.254", false));
-        // vSeeds.push_back(CDNSSeedData("MTP1", "mtp1.lava.io", false));
-        // vSeeds.push_back(CDNSSeedData("MTP2", "mtp2.lava.io", false));
-        vSeeds.push_back(CDNSSeedData("SIGMA1", "sigma1.lava.io", false));
-        vSeeds.push_back(CDNSSeedData("SIGMA2", "sigma2.lava.io", false));
+        // vSeeds.push_back(CDNSSeedData("MTP1", "mtp1.lava.money", false));
+        // vSeeds.push_back(CDNSSeedData("MTP2", "mtp2.lava.money", false));
+        vSeeds.push_back(CDNSSeedData("SIGMA1", "sigma1.lava.money", false));
+        vSeeds.push_back(CDNSSeedData("SIGMA2", "sigma2.lava.money", false));
 
 //        vSeeds.push_back(CDNSSeedData("testnetbitcoin.jonasschnelli.ch", "testnet-seed.bitcoin.jonasschnelli.ch", true));
 //        vSeeds.push_back(CDNSSeedData("petertodd.org", "seed.tbtc.petertodd.org", true));
