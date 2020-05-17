@@ -4346,8 +4346,8 @@ bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKe
         return false;
 
     if (block.vchBlockSig.empty())
-        return false;
-
+        return error("Block signature is empty for PoS Block\n");
+    
     vector<vector<unsigned char> > vSolutions;
     const CTxOut& txout = block.vtx[1].vout[1];
     txnouttype whichType;
@@ -4392,10 +4392,9 @@ static bool CheckBlockSignature(const CBlock& block)
     std::vector<unsigned char> vchPubKey;
     if(!GetBlockPublicKey(block, vchPubKey))
     {
-        return false;
+        return error("Can't get expected pubkey to verify signature to\n");
     }
-    CPubKey key_id;
-    CPubKey posPubKey;
+    CPubKey key_id,posPubKey;
     //get Expected pubkey to verify.
     posPubKey.RecoverCompact(block.GetHash(), block.vchBlockSig);
     key_id = CPubKey(vchPubKey);
