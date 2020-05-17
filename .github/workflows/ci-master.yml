@@ -142,7 +142,7 @@ jobs:
   build-mac:
     name: Build for macOS
     needs: create-source-distribution
-    runs-on: macos-10.15
+    runs-on: ubuntu-18.04
     env:
       ARTIFACT_DIR: mac-binaries
     steps:
@@ -155,24 +155,30 @@ jobs:
         tar -xzf depends.tar.gz
         tar -xzf lava-*.tar.gz --strip-components=1
       working-directory: ${{ env.SOURCE_ARTIFACT }}
-    - name: Use Xcode instead of Command Line Tools
-      run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
     - name: Install Required Packages
-      run: brew install automake coreutils pkg-config
+      run: sudo apt install python3-setuptools libcap-dev zlib1g-dev libbz2-dev build-essential make cmake curl
+    - name: Get macOS SDK
+      run: |
+        mkdir -p depends/sdk-sources
+        mkdir -p depends/SDKs
+        curl https://bitcoincore.org/depends-sources/sdks/MacOSX10.11.sdk.tar.gz -o depends/sdk-sources/MacOSX10.11.sdk.tar.gz
+        tar -C depends/SDKs -xf depends/sdk-sources/MacOSX10.11.sdk.tar.gz
+      working-directory: ${{ env.SOURCE_ARTIFACT }}
     - name: Build Dependencies
-      run: make -C depends -j$(sysctl -n hw.activecpu)
+      run: make -C depends HOST=x86_64-apple-darwin14 -j$(nproc)
       working-directory: ${{ env.SOURCE_ARTIFACT }}
     - name: Build Lava
       run: |
-        ./configure --disable-jni --enable-elysium --prefix=$(grealpath depends/x86_64-apple-darwin*)
-        make -j$(sysctl -n hw.activecpu)
+        ./configure --disable-jni  --enable-elysium --prefix=$(realpath depends/x86_64-apple-darwin14)
+        make -j$(nproc)
       working-directory: ${{ env.SOURCE_ARTIFACT }}
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
+        strip $SOURCE_ARTIFACT/src/{lava-cli,lava-tx,lavad,qt/lava-qt}
         mv $SOURCE_ARTIFACT/src/{lava-cli,lava-tx,lavad,qt/lava-qt} $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
         name: mac-binaries
-        path: ${{ env.ARTIFACT_DIR }}
+        path: ${{ env.ARTIFACT_DIR }} 

@@ -167,7 +167,7 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(*(CBlockHeader*)this);
         READWRITE(vtx);
-        if(this->IsProofOfStake())
+        if(IsProofOfStake())
             READWRITE(vchBlockSig);
     }
 
