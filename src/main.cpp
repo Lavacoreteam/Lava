@@ -7427,8 +7427,7 @@ bool static ProcessMessage(CNode *pfrom, string strCommand,
         for (unsigned int n = 0; n < nCount; n++) {
             headers[n].SerializationOp(vRecv, CBlockHeader::CReadBlockHeader(), SER_NETWORK, CLIENT_VERSION);
             ReadCompactSize(vRecv); // ignore tx count; assume it is 0.
-            if(headers[n].nNonce == 0)
-                ReadCompactSize(vRecv); // needed for vchBlockSig.
+            ReadCompactSize(vRecv); // needed for vchBlockSig.
         }
 
         {
