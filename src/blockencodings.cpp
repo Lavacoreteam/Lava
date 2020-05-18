@@ -146,6 +146,7 @@ bool PartiallyDownloadedBlock::IsTxAvailable(size_t index) const {
 ReadStatus PartiallyDownloadedBlock::FillBlock(CBlock& block, const std::vector<CTransaction>& vtx_missing) const {
     assert(!header.IsNull());
     block = header;
+    block.vchBlockSig = vchBlockSig;
     block.vtx.resize(txn_available.size());
 
     size_t tx_missing_offset = 0;
