@@ -922,20 +922,19 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     {
         CBlockIndex* pindexPrev = chainActive.Tip();
         const int nHeight = pindexPrev->nHeight + 1;
-        int64_t nReward = nFees + GetBlockSubsidy(nHeight, Params().GetConsensus());
+        int64_t nReward = nFees + GetBlockSubsidy(nHeight);
         if (nReward < 0) {
            return false;
         }
 
         CBlock *pblock = &pblocktemplate->block;
         CAmount FounderPay = GetFounderPaymentAmount(nHeight);
-        if (FounderPay > 1 * COIN) {
-            CScript FOUNDER_1_SCRIPT;
+        if (FounderPay > 0) {
+            CScript FounderScript = GetScriptForDestination(CBitcoinAddress(Params().GetConsensus().FounderAddress).Get());
             // Take some reward away from us
             nReward -= FounderPay;
-            FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(Params().GetConsensus().FounderAddress).Get());
-            // And give it to the founders
-            txNew.vout.push_back(CTxOut(FounderPay, CScript(FOUNDER_1_SCRIPT.begin(), FOUNDER_1_SCRIPT.end())));
+            // And give it to the founder
+            txNew.vout.push_back(CTxOut(FounderPay, CScript(FounderScript.begin(), FounderScript.end())));
         }
         nCredit += nReward;
     }

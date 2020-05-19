@@ -2101,15 +2101,15 @@ CAmount GetFounderPaymentAmount(int nHeight){
     CAmount nSubsidy = 0 * COIN;
     int nBlocks24hr = 720;
     int FounderReward = 35;
-    if(nHeight == 15)
-        nSubsidy = 100000000 * COIN;//Add 100 mil for premine
+    if(nHeight > 2 && nHeight < Params().GetConsensus().nLastPOWBlock)
+        nSubsidy = 50075.112669 * COIN;
     else if (nHeight % nBlocks24hr == 0 && nHeight > 2){
         nSubsidy = nBlocks24hr * FounderReward * COIN;
     }
     return nSubsidy;
 }
 
-CAmount GetBlockSubsidy(int nHeight, const Consensus::Params &consensusParams, int nTime) {
+CAmount GetBlockSubsidy(int nHeight) {
     // Genesis block is 0 coin
     if (nHeight == 0)
         return 0;
@@ -2387,11 +2387,11 @@ namespace Consensus {
                                            FormatMoney(tx.GetValueOut())));
             // Tally transaction fees
             CAmount nTxFee = tx.IsCoinStake() ? tx.GetValueOut() - nValueIn : nValueIn - tx.GetValueOut();
-            bool fCoinstakematchesReward = tx.IsCoinStake() && nTxFee == GetBlockSubsidy(nSpendHeight,consensus,GetAdjustedTime());
+            bool fCoinstakematchesReward = tx.IsCoinStake() && nTxFee == GetBlockSubsidy(nSpendHeight);
             if(!fCoinstakematchesReward && tx.IsCoinStake()){
                 LogPrintf("Stakeout is %d\n",nTxFee/COIN);
                 LogPrintf("SpendHeight  is %d\n",nSpendHeight);
-                LogPrintf("Expected stakeout  is %d\n",GetBlockSubsidy(nSpendHeight,consensus,GetAdjustedTime())/COIN);
+                LogPrintf("Expected stakeout  is %d\n",GetBlockSubsidy(nSpendHeight)/COIN);
                 return state.DoS(100, false, REJECT_INVALID, "bad-coinstake-toohigh");
 
             }
@@ -3060,7 +3060,7 @@ bool ConnectBlock(const CBlock &block, CValidationState &state, CBlockIndex *pin
              (unsigned) block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(),
              nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs - 1), nTimeConnect * 0.000001);
     //btzc: Add time to check
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus(), pindex->nTime);
+    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight);
 	if (block.IsProofOfWork()) {
         if (block.vtx[0].GetValueOut() > blockReward)
             return state.DoS(100, error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
@@ -4965,7 +4965,7 @@ AcceptBlock(const CBlock &block, CValidationState &state, const CChainParams &ch
     // Check for the first proof of work block
     if (block.IsProofOfWork() && nHeight > chainparams.GetConsensus().nLastPOWBlock)
         return state.DoS(100, error("%s: reject proof-of-work at height %d",  __func__, nHeight),
-                        REJECT_INVALID, "bad-pos-height");
+                        REJECT_INVALID, "bad-pow-height");
     // Write block to history file
     try {
         unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);

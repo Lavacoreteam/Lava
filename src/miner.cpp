@@ -169,29 +169,22 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
         coinbaseTx.vout[0].nValue = 0;
     }
     CAmount FounderPay = GetFounderPaymentAmount(nHeight);
-    CScript PoWPayee = GetScriptForDestination(CBitcoinAddress("LNq2krfUmMZ3fU4K6sA385CaJysLKsugsE").Get());
-    if (FounderPay > 1 * COIN && !fProofOfStake) {
-            CScript FOUNDER_1_SCRIPT;
+    CScript PoWPayee = GetScriptForDestination(CBitcoinAddress(params.PoWPayee).Get());
+    CScript FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());;
+    if (FounderPay > 0 && !fProofOfStake) {
             // Take some reward away from us
             coinbaseTx.vout[0].nValue = -FounderPay;
-            FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());
-
             // And give it to the founders
             coinbaseTx.vout.push_back(CTxOut(FounderPay, CScript(FOUNDER_1_SCRIPT.begin(), FOUNDER_1_SCRIPT.end())));
-            if(nHeight < params.nLastPOWBlock && nHeight > 2){
-            //Give the powpayee addr all the rewards
-            // Take some reward away from us
-            coinbaseTx.vout[0].nValue += -15 * COIN;
-            // And give it to the PowPayee
-            coinbaseTx.vout.push_back(CTxOut(15 * COIN, CScript(PoWPayee.begin(), PoWPayee.end())));
-            }
     }
-    if (nHeight < params.nLastPOWBlock && nHeight > 2 && nHeight != 15){
+    if (nHeight > 2 && !fProofOfStake){
         //Give the powpayee addr all the rewards
-            // Take some reward away from us
-            coinbaseTx.vout[0].nValue = -15 * COIN;
+            CAmount cbVout = coinbaseTx.vout[0].nValue;
+            CAmount BlockReward = GetBlockSubsidy(nHeight);
+            CAmount PoWPayeeAmt = cbVout < 0 ? cbVout + abs(BlockReward) : abs(BlockReward);
+            coinbaseTx.vout[0].nValue = PoWPayeeAmt;
             // And give it to the PowPayee
-            coinbaseTx.vout.push_back(CTxOut(15 * COIN, CScript(PoWPayee.begin(), PoWPayee.end())));
+            coinbaseTx.vout.push_back(CTxOut(BlockReward, CScript(PoWPayee.begin(), PoWPayee.end())));
     }
 
     // Add dummy coinbase tx as first transaction
@@ -479,7 +472,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
                 }
             }
         }
-        CAmount blockReward = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus(), nBlockTime);
+        CAmount blockReward = nFees + GetBlockSubsidy(nHeight);
         nLastBlockTx = nBlockTx;
         nLastBlockSize = nBlockSize;
         LogPrintf("CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOps);

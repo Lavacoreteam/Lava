@@ -538,36 +538,41 @@ bool CheckMintLavaTransaction(const CTxOut &txout,
     return true;
 }
 
+bool OutputAndVoutMatch(const CTxOut &output,const CScript &expectedScript,const CAmount voutExpected){
+    return  (output.scriptPubKey == expectedScript && output.nValue == voutExpected);
+}
+
+bool ReturnFounderPaymentMissing(CValidationState &state,std::string paymenttype,std::string expectedPay,std::string nHeight){
+    std::string errorString = "CTransaction::CheckTransaction() : " + paymenttype  + " reward missing of " + expectedPay + " coins at Height " + nHeight;
+    return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,errorString);
+}
+
 bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state, const Consensus::Params &params, int nHeight) {
     // Check for founders inputs
-        CAmount FounderPay = GetFounderPaymentAmount(nHeight);//Premine is 100mil,devfee is 975
-        bool found_1,foundPowPayee = false;//Default founder payment check to true if there is no payment needed at this blockheight
-        if(FounderPay > 1 * COIN){
-            CScript FOUNDER_1_SCRIPT;
-            FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());
-            BOOST_FOREACH(const CTxOut &output, tx.vout) {
-                if (output.scriptPubKey == FOUNDER_1_SCRIPT && output.nValue == (FounderPay)) {
-                    found_1 = true;
-                }
-            }
-            if (!(found_1)) {
-                return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,
-                             "CTransaction::CheckTransaction() : founders reward missing of" + std::to_string(FounderPay / COIN)+ "coins at Height " + std::to_string(nHeight));
-            }
+    CAmount FounderPay = GetFounderPaymentAmount(nHeight);
+
+    bool fCheckPoWPayee = nHeight > 2 && nHeight < params.nLastPOWBlock;
+    bool fCheckFounder = FounderPay > 0;
+    bool fCheckPayees = fCheckFounder || fCheckPoWPayee;
+
+    if (fCheckPayees) {
+        bool foundFounderPay,foundPowPayee = false;
+        CAmount PoWPayeeAmount = fCheckFounder ? GetBlockSubsidy(nHeight) - FounderPay : GetBlockSubsidy(nHeight);
+    
+        CScript FounderScript = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());
+        CScript PoWPayee = GetScriptForDestination(CBitcoinAddress(params.PoWPayee).Get());
+    
+        for (const CTxOut &output : tx.vout) {
+                    foundFounderPay = OutputAndVoutMatch(output,FounderScript,FounderPay);
+                    foundPowPayee = OutputAndVoutMatch(output,PoWPayee,PoWPayeeAmount);
         }
-        else if (nHeight > 2 && nHeight < params.nLastPOWBlock){
-            CScript PoWPayee;
-            PoWPayee = GetScriptForDestination(CBitcoinAddress("LNq2krfUmMZ3fU4K6sA385CaJysLKsugsE").Get());
-            BOOST_FOREACH(const CTxOut &output, tx.vout) {
-                if (output.scriptPubKey == PoWPayee && output.nValue == (15 * COIN)) {
-                    foundPowPayee = true;
-                }
-            }
-            if (!(foundPowPayee)) {
-                return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,
-                             "CTransaction::CheckTransaction() : PoWPayee's reward missing of" + std::to_string(15)+ "coins at Height " + std::to_string(nHeight));
-            }
-        }
+        if (!foundFounderPay && fCheckFounder)
+                return ReturnFounderPaymentMissing(state,"founders",std::to_string(FounderPay/COIN),std::to_string(nHeight));
+    
+        if (!foundPowPayee && fCheckPoWPayee)
+                return ReturnFounderPaymentMissing(state,"PoWPayee",std::to_string(PoWPayeeAmount/COIN),std::to_string(nHeight));
+
+    }
     return true;
 }
 

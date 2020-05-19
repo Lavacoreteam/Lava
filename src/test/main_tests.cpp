@@ -17,22 +17,22 @@ static void TestBlockSubsidyHalvings(const Consensus::Params& consensusParams)
     int maxHalvings = 64;
     CAmount nInitialSubsidy = 50 * COIN;
 
-    BOOST_CHECK_EQUAL(GetBlockSubsidy(1, consensusParams, consensusParams.nMTPSwitchTime-1000), nInitialSubsidy);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(1), nInitialSubsidy);
     nInitialSubsidy /= consensusParams.nMTPRewardReduction;
-    BOOST_CHECK_EQUAL(GetBlockSubsidy(2, consensusParams, consensusParams.nMTPSwitchTime), nInitialSubsidy);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(2), nInitialSubsidy);
 
     CAmount nPreviousSubsidy = nInitialSubsidy;
     for (int nHalvings = 1; nHalvings < maxHalvings; nHalvings++) {
         int nHeight = consensusParams.nSubsidyHalvingFirst + (nHalvings-1) * consensusParams.nSubsidyHalvingInterval;
         if (nHeight >= consensusParams.nSubsidyHalvingStopBlock)
             break;
-        CAmount nSubsidy = GetBlockSubsidy(nHeight, consensusParams, consensusParams.nMTPSwitchTime);
+        CAmount nSubsidy = GetBlockSubsidy(nHeight);
         BOOST_CHECK(nSubsidy <= nInitialSubsidy);
         if(nHeight > 0)
             BOOST_CHECK_EQUAL(nSubsidy, nPreviousSubsidy / 2);
         nPreviousSubsidy = nPreviousSubsidy / 2;
     }
-    BOOST_CHECK_EQUAL(GetBlockSubsidy(consensusParams.nSubsidyHalvingStopBlock, consensusParams), 0);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(consensusParams.nSubsidyHalvingStopBlock), 0);
 }
 
 BOOST_AUTO_TEST_CASE(block_subsidy_test)
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(subsidy_limit_test)
         else if (nHeight == consensusParams.nSubsidyHalvingStopBlock)
             step = 10000;
 
-        CAmount nSubsidy = GetBlockSubsidy(nHeight, consensusParams, nHeight<nMTPFirstBlock ? consensusParams.nMTPSwitchTime-1000 : consensusParams.nMTPSwitchTime);
+        CAmount nSubsidy = GetBlockSubsidy(nHeight);
         if (nHeight == 0)
             nSubsidy = 50*COIN;
         BOOST_CHECK(nSubsidy <= 50 * COIN);
