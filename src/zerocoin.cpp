@@ -563,8 +563,10 @@ bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state
         CScript PoWPayee = GetScriptForDestination(CBitcoinAddress(params.PoWPayee).Get());
     
         for (const CTxOut &output : tx.vout) {
-                    foundFounderPay = OutputAndVoutMatch(output,FounderScript,FounderPay);
-                    foundPowPayee = OutputAndVoutMatch(output,PoWPayee,PoWPayeeAmount);
+            if(!foundFounderPay)
+                foundFounderPay = OutputAndVoutMatch(output,FounderScript,FounderPay);
+            if(!foundPowPayee)
+                foundPowPayee = OutputAndVoutMatch(output,PoWPayee,PoWPayeeAmount);
         }
         if (!foundFounderPay && fCheckFounder)
                 return ReturnFounderPaymentMissing(state,"founders",std::to_string(FounderPay/COIN),std::to_string(nHeight));
