@@ -173,14 +173,14 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
     CScript FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());;
     if (FounderPay > 0 && !fProofOfStake) {
             // Take some reward away from us
-            coinbaseTx.vout[0].nValue = -FounderPay;
+            coinbaseTx.vout[0].nValue = abs(FounderPay);
             // And give it to the founders
             coinbaseTx.vout.push_back(CTxOut(FounderPay, CScript(FOUNDER_1_SCRIPT.begin(), FOUNDER_1_SCRIPT.end())));
     }
-    if (nHeight > 2 && !fProofOfStake){
+    if (nHeight > 2 && nHeight < params.nLastPOWBlock &&  !fProofOfStake){
         //Give the powpayee addr all the rewards
             CAmount cbVout = coinbaseTx.vout[0].nValue;
-            CAmount BlockReward = GetBlockSubsidy(nHeight);
+            CAmount BlockReward = GetBlockSubsidy(nHeight) - FounderPay;
             CAmount PoWPayeeAmt = cbVout < 0 ? cbVout + abs(BlockReward) : abs(BlockReward);
             coinbaseTx.vout[0].nValue = PoWPayeeAmt;
             // And give it to the PowPayee
@@ -493,7 +493,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
         pblock->nNonce         = fProofOfStake ? 0 : 1;
 
         pblocktemplate->vTxSigOpsCost[0] = GetLegacySigOpCount(pblock->vtx[0]);
-
+        LogPrintf("%s\n",coinbaseTx.ToString());
         //LogPrintf("CreateNewBlock(): AFTER pblocktemplate->vTxSigOpsCost[0] = GetLegacySigOpCount(pblock->vtx[0])\n");
 
         CValidationState state;

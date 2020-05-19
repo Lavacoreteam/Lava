@@ -2102,7 +2102,7 @@ CAmount GetFounderPaymentAmount(int nHeight){
     int nBlocks24hr = 720;
     int FounderReward = 35;
     if(nHeight > 2 && nHeight < Params().GetConsensus().nLastPOWBlock)
-        nSubsidy = 50075.112669 * COIN;
+        nSubsidy = 50076 * COIN;
     else if (nHeight % nBlocks24hr == 0 && nHeight > 2){
         nSubsidy = nBlocks24hr * FounderReward * COIN;
     }
