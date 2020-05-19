@@ -538,8 +538,8 @@ bool CheckMintLavaTransaction(const CTxOut &txout,
     return true;
 }
 
-bool OutputAndVoutMatch(const CTxOut &output,const CScript &expectedScript,const CAmount voutExpected){
-    return  (output.scriptPubKey == expectedScript && output.nValue == voutExpected);
+bool OutputAndVoutMatch(const CTxOut &output,CScript expectedScript,CAmount voutExpected){
+    return  output.scriptPubKey == expectedScript && output.nValue >= voutExpected;
 }
 
 bool ReturnFounderPaymentMissing(CValidationState &state,std::string paymenttype,std::string expectedPay,std::string nHeight){
@@ -556,22 +556,22 @@ bool CheckZerocoinFoundersInputs(const CTransaction &tx, CValidationState &state
     bool fCheckPayees = fCheckFounder || fCheckPoWPayee;
 
     if (fCheckPayees) {
-        bool foundFounderPay,foundPowPayee = false;
+        bool foundFounderPay= false,foundPowPayee = false;
         CAmount PoWPayeeAmount = fCheckFounder ? GetBlockSubsidy(nHeight) - FounderPay : GetBlockSubsidy(nHeight);
     
         CScript FounderScript = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());
         CScript PoWPayee = GetScriptForDestination(CBitcoinAddress(params.PoWPayee).Get());
     
-        for (const CTxOut &output : tx.vout) {
+        BOOST_FOREACH(const CTxOut &output, tx.vout) {
             if(!foundFounderPay)
                 foundFounderPay = OutputAndVoutMatch(output,FounderScript,FounderPay);
             if(!foundPowPayee)
                 foundPowPayee = OutputAndVoutMatch(output,PoWPayee,PoWPayeeAmount);
         }
-        if (!foundFounderPay && fCheckFounder)
+        if ((!foundFounderPay) && fCheckFounder)
                 return ReturnFounderPaymentMissing(state,"founders",std::to_string(FounderPay/COIN),std::to_string(nHeight));
     
-        if (!foundPowPayee && fCheckPoWPayee)
+        if ((!foundPowPayee) && fCheckPoWPayee)
                 return ReturnFounderPaymentMissing(state,"PoWPayee",std::to_string(PoWPayeeAmount/COIN),std::to_string(nHeight));
 
     }

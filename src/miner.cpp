@@ -173,7 +173,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
     CScript FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(params.FounderAddress).Get());;
     if (FounderPay > 0 && !fProofOfStake) {
             // Take some reward away from us
-            coinbaseTx.vout[0].nValue = abs(FounderPay);
+            coinbaseTx.vout[0].nValue = -FounderPay;
             // And give it to the founders
             coinbaseTx.vout.push_back(CTxOut(FounderPay, CScript(FOUNDER_1_SCRIPT.begin(), FOUNDER_1_SCRIPT.end())));
     }
@@ -181,8 +181,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
         //Give the powpayee addr all the rewards
             CAmount cbVout = coinbaseTx.vout[0].nValue;
             CAmount BlockReward = GetBlockSubsidy(nHeight) - FounderPay;
-            CAmount PoWPayeeAmt = cbVout < 0 ? cbVout + abs(BlockReward) : abs(BlockReward);
-            coinbaseTx.vout[0].nValue = PoWPayeeAmt;
+            coinbaseTx.vout[0].nValue += -15 * COIN;
             // And give it to the PowPayee
             coinbaseTx.vout.push_back(CTxOut(BlockReward, CScript(PoWPayee.begin(), PoWPayee.end())));
     }
@@ -479,7 +478,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
 
         // Compute final coinbase transaction.
         if(!fProofOfStake)//Only Set vout of coinbasetx as blockreward in PoW Blocks
-            coinbaseTx.vout[0].nValue += blockReward;        
+            coinbaseTx.vout[0].nValue += blockReward;
+                
         coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
         pblock->vtx[0] = coinbaseTx;
         pblocktemplate->vTxFees[0] = -nFees;
