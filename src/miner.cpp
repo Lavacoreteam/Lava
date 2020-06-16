@@ -493,7 +493,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(
         pblock->nNonce         = fProofOfStake ? 0 : 1;
 
         pblocktemplate->vTxSigOpsCost[0] = GetLegacySigOpCount(pblock->vtx[0]);
-        LogPrintf("%s\n",coinbaseTx.ToString());
+        // LogPrintf("%s\n",coinbaseTx.ToString());
         //LogPrintf("CreateNewBlock(): AFTER pblocktemplate->vTxSigOpsCost[0] = GetLegacySigOpCount(pblock->vtx[0])\n");
 
         CValidationState state;
