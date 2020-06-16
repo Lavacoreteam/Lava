@@ -3542,7 +3542,7 @@ static int64_t nTimePostConnect = 0;
  */
 bool static
 ConnectTip(CValidationState &state, const CChainParams &chainparams, CBlockIndex *pindexNew, const CBlock *pblock) {
-    LogPrintf("ConnectTip() nHeight=%s\n", pindexNew->nHeight);
+    // LogPrintf("ConnectTip() nHeight=%s\n", pindexNew->nHeight);
     assert(pindexNew->pprev == chainActive.Tip());
     // Read block from disk.
     int64_t nTime1 = GetTimeMicros();
@@ -3815,7 +3815,7 @@ static void PruneBlockIndexCandidates() {
  */
 static bool ActivateBestChainStep(CValidationState &state, const CChainParams &chainparams, CBlockIndex *pindexMostWork,
                                   const CBlock *pblock, bool &fInvalidFound) {
-    LogPrintf("ActivateBestChainStep()\n");
+    // LogPrintf("ActivateBestChainStep()\n");
     AssertLockHeld(cs_main);
     const CBlockIndex *pindexOldTip = chainActive.Tip();
     const CBlockIndex *pindexFork = chainActive.FindFork(pindexMostWork);
@@ -4925,12 +4925,12 @@ AcceptBlock(const CBlock &block, CValidationState &state, const CChainParams &ch
     AssertLockHeld(cs_main);
     CBlockIndex *pindexDummy = NULL;
     CBlockIndex *&pindex = ppindex ? *ppindex : pindexDummy;
-    LogPrintf("AcceptBlock ...\n");
+    // LogPrintf("AcceptBlock ...\n");
     if (!AcceptBlockHeader(block, state, chainparams, &pindex,!block.IsProofOfStake())) {
         LogPrintf("Invalid AcceptBlockHeader()\n");
         return false;
     }
-    LogPrintf("AcceptBlock nHeight=%s\n", pindex->nHeight);
+    // LogPrintf("AcceptBlock nHeight=%s\n", pindex->nHeight);
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
     // advance our tip, and isn't too many blocks ahead.
@@ -5025,7 +5025,7 @@ bool ProcessNewBlock(CValidationState &state, const CChainParams &chainparams, C
     }
 
     NotifyHeaderTip();
-    LogPrintf("ProcessNewBlock->ActivateBestChain\n");
+    // LogPrintf("ProcessNewBlock->ActivateBestChain\n");
     if (!ActivateBestChain(state, chainparams, pblock)) {
         LogPrintf("->failed\n");
         return error("%s: ActivateBestChain failed", __func__);
